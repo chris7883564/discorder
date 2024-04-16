@@ -1,4 +1,4 @@
-FROM node:lts AS builder
+FROM node:18 AS builder
 
 WORKDIR /app
 
@@ -18,7 +18,7 @@ RUN npm pkg delete scripts.prepare
 
 RUN rm -rf node_modules && pnpm install --production --no-optional
 
-FROM node:lts AS runner
+FROM node:18 AS runner
 
 WORKDIR /app
 
