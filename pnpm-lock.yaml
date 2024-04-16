@@ -32,17 +32,15 @@ dependencies:
     prism-media:
         specifier: ^1.3.5
         version: 1.3.5(@discordjs/opus@0.9.0)
+    smart-whisper:
+        specifier: ^0.7.0
+        version: 0.7.0
     wav:
         specifier: ^1.0.2
         version: 1.0.2
     zod:
         specifier: ^3.22.4
         version: 3.22.4
-
-optionalDependencies:
-    smart-whisper:
-        specifier: ^0.1.2
-        version: 0.1.2
 
 devDependencies:
     "@changesets/changelog-github":
@@ -4246,14 +4244,13 @@ packages:
             }
         dev: false
 
-    /node-addon-api@7.0.0:
+    /node-addon-api@7.1.0:
         resolution:
             {
-                integrity: sha512-vgbBJTS4m5/KkE16t5Ly0WW9hz46swAstv0hYYwMtbG7AznRhNyfLRe8HZAiWIpcHzoO7HxhLuBQj9rJ/Ho0ZA==,
+                integrity: sha512-mNcltoe1R8o7STTegSOHdnJNN7s5EUvhoS7ShnTHDyOSd+8H+UdWODq6qSv67PjC8Zc5JRT8+oLAMCr0SIXw7g==,
             }
-        requiresBuild: true
+        engines: { node: ^16 || ^18 || >= 20 }
         dev: false
-        optional: true
 
     /node-domexception@1.0.0:
         resolution:
@@ -5392,16 +5389,15 @@ packages:
             is-fullwidth-code-point: 5.0.0
         dev: true
 
-    /smart-whisper@0.1.2:
+    /smart-whisper@0.7.0:
         resolution:
             {
-                integrity: sha512-iUhcT1PevITMGUvCkoZOFwVLcZKcN/LYI/l7RppPUZisReqZSpZUirOKF/o2evDQKWOiXtLDCgdsFdNydYHuag==,
+                integrity: sha512-neHJe/y3J7HJUF2B/B0Ya4vmN/71K6GIUrLbQ+B2SnHCmdCX+1p+ZwvBeBSj4+wlDtwPZBA/r5Bq79eLB9WgGQ==,
             }
         requiresBuild: true
         dependencies:
-            node-addon-api: 7.0.0
+            node-addon-api: 7.1.0
         dev: false
-        optional: true
 
     /smartwrap@2.0.2:
         resolution:

@@ -5,6 +5,8 @@ config();
 
 export const BOT_TOKEN = process.env.BOT_TOKEN ?? "";
 export const BOT_ID = process.env.BOT_ID ?? "";
+export const GUILD_ID = process.env.GUILD_ID ?? "";
+
 export const DATA_DIR = path.resolve(process.env.DATA_DIR ?? "./data");
 export const RECORDING_DIR = path.join(DATA_DIR, "recording");
 export const USER_DATA_DIR = path.join(DATA_DIR, "user");

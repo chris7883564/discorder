@@ -8,7 +8,6 @@ import path from "node:path";
 import prism from "prism-media";
 import wav from "wav";
 import { RECORDING_DIR } from "../config";
-import { manager } from "../user";
 
 const log = debug("recorder");
 log.enabled = true;
@@ -57,10 +56,11 @@ export class Recorder extends EventEmitter {
 				return;
 			}
 
-			const eula = manager.get(user).eula;
-			if (!eula) {
-				return;
-			}
+			// // check EULA has been accepted by the user
+			// const eula = manager.get(user).eula;
+			// if (!eula) {
+			// 	return;
+			// }
 
 			if (this.recording.has(user)) {
 				return;
@@ -72,7 +72,7 @@ export class Recorder extends EventEmitter {
 			const audio = this.conn.receiver.subscribe(user, {
 				end: {
 					behavior: EndBehaviorType.AfterSilence,
-					duration: 1500,
+					duration: 1000,
 				},
 			});
 

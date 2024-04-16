@@ -17,6 +17,7 @@
 		"noImplicitReturns": true,
 		"paths": {
 			"@/*": ["./src/*"]
-		}
+		},
+		"sourceMap": true
 	}
 }

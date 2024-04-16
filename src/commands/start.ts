@@ -2,7 +2,6 @@ import { joinVoiceChannel } from "@discordjs/voice";
 import fs from "node:fs";
 import { add } from "../recorder";
 import { local_transcribe, remote_transcribe } from "../transcriber";
-import { manager } from "../user";
 import type { Command } from "./types";
 
 const command: Command = {
@@ -21,13 +20,11 @@ const command: Command = {
 			return;
 		}
 
-		const eula = manager.get(interaction.user.id).eula;
-		if (!eula) {
-			await interaction.reply(
-				"You need to accept the EULA first! Use `/eula view` to view the EULA and `/eula accept` to accept it.",
-			);
-			return;
-		}
+		// const eula = manager.get(interaction.user.id).eula;
+		// if (!eula) {
+		// 	await interaction.reply( "You need to accept the EULA first! Use `/eula view` to view the EULA and `/eula accept` to accept it." );
+		// 	return;
+		// }
 
 		if (!("voice" in interaction.member)) {
 			await interaction.reply("You need to join a voice channel first!");
@@ -55,8 +52,11 @@ const command: Command = {
 		const language = interaction.options.getString("language");
 		const prompt = interaction.options.getString("prompt");
 		const live_chan = interaction.options.getChannel("channel");
+		console.log(live_chan, language, prompt);
+		console.log(interaction.options);
 		if (!live_chan || !("send" in live_chan)) {
-			await interaction.reply("Invalid live channel!");
+			console.log("Invalid live channel!");
+			// await interaction.reply("Invalid live channel!");
 			return;
 		}
 
@@ -93,15 +93,15 @@ const command: Command = {
 				fs.writeFileSync(fp, text);
 
 				const username = channel.guild.members.cache.get(user_id)?.displayName ?? user_id;
-				await live_chan.send({
-					content: `**${username}**: ${text}`,
-				});
+				//@ts-ignore gabae
+				await live_chan.send({ content: `**${username}**: ${text}` });
 			}
 		});
 
 		await interaction.reply("Starting the recorder!");
 	},
 	build: (builder) => {
+		console.log("Building start command");
 		builder
 			.addStringOption((option) =>
 				option
@@ -111,63 +111,24 @@ const command: Command = {
 					.setChoices(
 						...[
 							{ name: "Auto", value: "auto" },
-							// { name: "Afrikaans", value: "af" },
-							// { name: "Arabic", value: "ar" },
-							// { name: "Armenian", value: "hy" },
-							// { name: "Azerbaijani", value: "az" },
-							// { name: "Belarusian", value: "be" },
-							// { name: "Bosnian", value: "bs" },
-							// { name: "Bulgarian", value: "bg" },
-							// { name: "Catalan", value: "ca" },
 							{ name: "Chinese", value: "zh" },
-							// { name: "Croatian", value: "hr" },
 							{ name: "Czech", value: "cs" },
-							// { name: "Danish", value: "da" },
 							{ name: "Dutch", value: "nl" },
 							{ name: "English", value: "en" },
-							// { name: "Estonian", value: "et" },
-							// { name: "Finnish", value: "fi" },
 							{ name: "French", value: "fr" },
-							// { name: "Galician", value: "gl" },
 							{ name: "German", value: "de" },
-							// { name: "Greek", value: "el" },
-							// { name: "Hebrew", value: "he" },
-							// { name: "Hindi", value: "hi" },
-							// { name: "Hungarian", value: "hu" },
-							// { name: "Icelandic", value: "is" },
 							{ name: "Indonesian", value: "id" },
 							{ name: "Italian", value: "it" },
 							{ name: "Japanese", value: "ja" },
-							// { name: "Kannada", value: "kn" },
-							// { name: "Kazakh", value: "kk" },
 							{ name: "Korean", value: "ko" },
-							// { name: "Latvian", value: "lv" },
-							// { name: "Lithuanian", value: "lt" },
-							// { name: "Macedonian", value: "mk" },
-							// { name: "Malay", value: "ms" },
-							// { name: "Marathi", value: "mr" },
-							// { name: "Maori", value: "mi" },
-							// { name: "Nepali", value: "ne" },
-							// { name: "Norwegian", value: "no" },
-							// { name: "Persian", value: "fa" },
 							{ name: "Polish", value: "pl" },
 							{ name: "Portuguese", value: "pt" },
 							{ name: "Romanian", value: "ro" },
 							{ name: "Russian", value: "ru" },
-							// { name: "Serbian", value: "sr" },
-							// { name: "Slovak", value: "sk" },
-							// { name: "Slovenian", value: "sl" },
 							{ name: "Spanish", value: "es" },
-							// { name: "Swahili", value: "sw" },
 							{ name: "Swedish", value: "sv" },
-							// { name: "Tagalog", value: "tl" },
-							// { name: "Tamil", value: "ta" },
 							{ name: "Thai", value: "th" },
 							{ name: "Turkish", value: "tr" },
-							// { name: "Ukrainian", value: "uk" },
-							// { name: "Urdu", value: "ur" },
-							// { name: "Vietnamese", value: "vi" },
-							// { name: "Welsh", value: "cy" },
 						],
 					),
 			)
