@@ -4,14 +4,11 @@
  * License: MIT
  * node_modules: discord.js
  */
-
 import { REST, Routes } from "discord.js";
 // const { Routes } = require('discord-api-types/v10');
 import { BOT_ID, BOT_TOKEN, GUILD_ID } from "./config";
-
-const removeGlobally = (TOKEN: string, CLIENT_ID: string) => {
+const removeGlobally = (TOKEN, CLIENT_ID) => {
 	const rest = new REST({ version: "10" }).setToken(TOKEN);
-
 	rest.get(Routes.applicationCommands(CLIENT_ID))
 		//@ts-ignore
 		.then((data) => {
@@ -26,16 +23,13 @@ const removeGlobally = (TOKEN: string, CLIENT_ID: string) => {
 			return Promise.all(promises);
 		});
 };
-
-const removeGuild = (TOKEN: string, CLIENT_ID: string, GUILD_ID: string) => {
+const removeGuild = (TOKEN, CLIENT_ID, GUILD_ID) => {
 	const rest = new REST({ version: "10" }).setToken(TOKEN);
 	rest.get(Routes.applicationGuildCommands(CLIENT_ID, GUILD_ID)).then((data) => {
 		const promises = [];
 		//@ts-ignore
 		for (const command of data) {
-			const deleteUrl = `${Routes.applicationGuildCommands(CLIENT_ID, GUILD_ID)}/${
-				command.id
-			}`;
+			const deleteUrl = `${Routes.applicationGuildCommands(CLIENT_ID, GUILD_ID)}/${command.id}`;
 			console.log(deleteUrl);
 			//@ts-ignore
 			promises.push(rest.delete(deleteUrl));
@@ -43,7 +37,6 @@ const removeGuild = (TOKEN: string, CLIENT_ID: string, GUILD_ID: string) => {
 		return Promise.all(promises);
 	});
 };
-
 (async () => {
 	try {
 		console.log("Deleting all application (/) commands.");
@@ -56,3 +49,4 @@ const removeGuild = (TOKEN: string, CLIENT_ID: string, GUILD_ID: string) => {
 		console.error(error);
 	}
 })();
+//# sourceMappingURL=deregister.js.map
