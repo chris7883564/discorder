@@ -12,16 +12,16 @@ services:
         network_mode: host
         extra_hosts:
             - "host.docker.internal:host-gateway"
-        depends_on:
-            - whisper
+    #     depends_on:
+    #         - whisper
 
-    whisper:
-        build:
-            context: .
-            dockerfile: dockerfile/whisper.dockerfile
-        image: cgeeb8765/discorder-whisper
-        env_file:
-            - .env
-        restart: always
-        ports:
-            - 38080:38080
+    # whisper:
+    #     build:
+    #         context: .
+    #         dockerfile: dockerfile/whisper.dockerfile
+    #     image: cgeeb8765/discorder-whisper
+    #     env_file:
+    #         - .env
+    #     restart: always
+    #     ports:
+    #         - 38080:38080
