@@ -17,11 +17,15 @@ bot.on("interactionCreate", (interaction) => {
 	if (!interaction.isCommand()) {
 		return;
 	}
-	log("Command received: %s", interaction.commandName);
-	const command = commands.find((cmd) => cmd.name === interaction.commandName);
-	if (!command) {
-		return;
+	try {
+		log("Command received: %s", interaction.commandName);
+		const command = commands.find((cmd) => cmd.name === interaction.commandName);
+		if (!command) {
+			return;
+		}
+		log("Executing command: %s", command.name);
+		command.action(interaction);
+	} catch (error) {
+		console.error("interactionCreate error: ", error);
 	}
-	log("Executing command: %s", command.name);
-	command.action(interaction);
 });

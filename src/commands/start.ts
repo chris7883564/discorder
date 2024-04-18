@@ -49,16 +49,18 @@ const command: Command = {
 			return;
 		}
 
-		const language = interaction.options.getString("language");
-		const prompt = interaction.options.getString("prompt");
-		const live_chan = interaction.options.getChannel("channel");
-		console.log(live_chan, language, prompt);
-		console.log(interaction.options);
-		if (!live_chan || !("send" in live_chan)) {
-			console.log("Invalid live channel!");
-			// await interaction.reply("Invalid live channel!");
-			return;
-		}
+		// const language = interaction.options.getString("language");
+		// const prompt = interaction.options.getString("prompt");
+		// const live_chan = interaction.options.getChannel("channel");
+		// console.log(live_chan, language, prompt);
+		// if (!live_chan || !("send" in live_chan)) {
+		// 	console.log("Invalid live channel!");
+		// 	await interaction.reply("Invalid live channel!");
+		// 	return;
+		// }
+
+		const language = "English";
+		const prompt = "";
 
 		const conn = joinVoiceChannel({
 			channelId: channel.id,
@@ -72,21 +74,18 @@ const command: Command = {
 		const recorder = add(conn, channel, interaction.member);
 		recorder.on("recorded", async (wav: string, user_id: string) => {
 			console.log("Recorded", wav);
-
 			let text = "";
 			if (local_transcribe) {
 				const { result } = await local_transcribe(wav, {
 					language: language ?? undefined,
 					initial_prompt: prompt ?? undefined,
 				});
-				//@ts-ignore
 				text = (await result).map((x) => x.text).join(" ");
 			} else if (remote_transcribe) {
 				const { result } = await remote_transcribe(wav, {
 					language: language ?? undefined,
 					prompt: prompt ?? undefined,
 				});
-				//@ts-ignore
 				text = result.map((x) => x.text).join(" ");
 			}
 
@@ -95,62 +94,62 @@ const command: Command = {
 				fs.writeFileSync(fp, text);
 
 				const username = channel.guild.members.cache.get(user_id)?.displayName ?? user_id;
-				//@ts-ignore gabae
-				await live_chan.send({ content: `**${username}**: ${text}` });
+				// await live_chan.send({ content: `**${username}**: ${text}` });
+				console.log(`**${username}**: ${text}`);
 			}
 		});
 
 		await interaction.reply("Starting the recorder!");
 	},
-	build: (builder) => {
-		console.log("Building start command");
-		builder
-			.addStringOption((option) =>
-				option
-					.setName("language")
-					.setDescription("The language of the recording")
-					.setRequired(false)
-					.setChoices(
-						...[
-							{ name: "Auto", value: "auto" },
-							{ name: "Chinese", value: "zh" },
-							{ name: "Czech", value: "cs" },
-							{ name: "Dutch", value: "nl" },
-							{ name: "English", value: "en" },
-							{ name: "French", value: "fr" },
-							{ name: "German", value: "de" },
-							{ name: "Indonesian", value: "id" },
-							{ name: "Italian", value: "it" },
-							{ name: "Japanese", value: "ja" },
-							{ name: "Korean", value: "ko" },
-							{ name: "Polish", value: "pl" },
-							{ name: "Portuguese", value: "pt" },
-							{ name: "Romanian", value: "ro" },
-							{ name: "Russian", value: "ru" },
-							{ name: "Spanish", value: "es" },
-							{ name: "Swedish", value: "sv" },
-							{ name: "Thai", value: "th" },
-							{ name: "Turkish", value: "tr" },
-						],
-					),
-			)
-			.addStringOption((option) =>
-				option
-					.setName("prompt")
-					.setDescription("The prompt to use")
-					.setRequired(false)
-					.setMinLength(1)
-					.setMaxLength(100),
-			)
-			.addChannelOption((option) =>
-				option
-					.setName("channel")
-					.setDescription("The text channel to send transcriptions to")
-					.setRequired(false),
-			);
+	// build: (builder) => {
+	// 	console.log("Building start command");
+	// 	builder
+	// 		.addStringOption((option) =>
+	// 			option
+	// 				.setName("language")
+	// 				.setDescription("The language of the recording")
+	// 				.setRequired(false)
+	// 				.setChoices(
+	// 					...[
+	// 						{ name: "Auto", value: "auto" },
+	// 						{ name: "Chinese", value: "zh" },
+	// 						{ name: "Czech", value: "cs" },
+	// 						{ name: "Dutch", value: "nl" },
+	// 						{ name: "English", value: "en" },
+	// 						{ name: "French", value: "fr" },
+	// 						{ name: "German", value: "de" },
+	// 						{ name: "Indonesian", value: "id" },
+	// 						{ name: "Italian", value: "it" },
+	// 						{ name: "Japanese", value: "ja" },
+	// 						{ name: "Korean", value: "ko" },
+	// 						{ name: "Polish", value: "pl" },
+	// 						{ name: "Portuguese", value: "pt" },
+	// 						{ name: "Romanian", value: "ro" },
+	// 						{ name: "Russian", value: "ru" },
+	// 						{ name: "Spanish", value: "es" },
+	// 						{ name: "Swedish", value: "sv" },
+	// 						{ name: "Thai", value: "th" },
+	// 						{ name: "Turkish", value: "tr" },
+	// 					],
+	// 				),
+	// 		)
+	// 		.addStringOption((option) =>
+	// 			option
+	// 				.setName("prompt")
+	// 				.setDescription("The prompt to use")
+	// 				.setRequired(false)
+	// 				.setMinLength(1)
+	// 				.setMaxLength(100),
+	// 		)
+	// 		.addChannelOption((option) =>
+	// 			option
+	// 				.setName("channel")
+	// 				.setDescription("The text channel to send transcriptions to")
+	// 				.setRequired(false),
+	// 		);
 
-		return builder;
-	},
+	// 	return builder;
+	// },
 };
 
 export default command;

@@ -45,7 +45,7 @@ export const local_transcribe = model
 			// 	language: options.language ?? undefined,
 			// 	initial_prompt: options.initial_prompt ?? undefined,
 			// });
-			const result = { text: "local transcribe not implemented", start: -1, end: -1 };
+			const result = [{ text: "local transcribe not implemented", start: -1, end: -1 }];
 			return { result };
 		}
 	: undefined;
@@ -82,7 +82,7 @@ export const remote_transcribe = server
 			// 	to: -1,
 			// }
 
-			const result = { text: "replicate transcribe not implemented", start: -1, end: -1 };
+			const result = [{ text: "replicate transcribe not implemented", start: -1, end: -1 }];
 			return { result };
 		}
 	: undefined;
