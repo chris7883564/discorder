@@ -1,5 +1,5 @@
 {
-	"include": ["**/*.ts"],
+	"include": ["**/*.ts", "src/transcriber/index.ts.org", "src/transcriber/index.ts"],
 	"exclude": ["**/dist", "**/lib"],
 	"compilerOptions": {
 		"target": "ESNext",

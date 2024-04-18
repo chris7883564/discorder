@@ -79,12 +79,14 @@ const command: Command = {
 					language: language ?? undefined,
 					initial_prompt: prompt ?? undefined,
 				});
+				//@ts-ignore
 				text = (await result).map((x) => x.text).join(" ");
 			} else if (remote_transcribe) {
 				const { result } = await remote_transcribe(wav, {
 					language: language ?? undefined,
 					prompt: prompt ?? undefined,
 				});
+				//@ts-ignore
 				text = result.map((x) => x.text).join(" ");
 			}
 
