@@ -18,7 +18,7 @@
 		"changeset": "changeset",
 		"build": "tsup",
 		"start": "node dist/index.js",
-		"go": "reset && tsup && node dist/index.js",
+		"go": "reset && tsup && arch --x86_64 node dist/index.js",
 		"register": "node dist/register.js",
 		"deregister": "node dist/deregister.js"
 	},

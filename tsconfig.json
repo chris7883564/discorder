@@ -18,6 +18,6 @@
 		"paths": {
 			"@/*": ["./src/*"]
 		},
-		"sourceMap": true
+		"sourceMap": false
 	}
 }
