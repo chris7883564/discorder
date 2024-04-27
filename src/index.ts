@@ -11,4 +11,8 @@ const address = process.env.CONVEX_URL;
 const client: ConvexHttpClient = new ConvexHttpClient(String(address));
 client.query(api.tasks.get).then((response: any) => console.log(response));
 
+client.mutation(api.tasks.add, { text: "Fuck off" }).then((response: any) => {
+	console.log(response);
+});
+
 bot.login(BOT_TOKEN);
