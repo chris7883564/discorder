@@ -10,6 +10,7 @@
  */
 
 import type { ApiFromModules, FilterApi, FunctionReference } from "convex/server";
+import type * as convexuploader from "../convexuploader.js";
 import type * as stems from "../stems.js";
 import type * as tasks from "../tasks.js";
 
@@ -22,6 +23,7 @@ import type * as tasks from "../tasks.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
+	convexuploader: typeof convexuploader;
 	stems: typeof stems;
 	tasks: typeof tasks;
 }>;

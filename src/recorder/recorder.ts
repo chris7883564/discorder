@@ -9,7 +9,7 @@ import prism from "prism-media";
 import wav from "wav";
 import { RECORDING_DIR } from "../config";
 
-import { uploadFileToConvex } from "./convexuploader";
+// import { uploadFileToConvex } from "./convexuploader";
 
 const log = debug("recorder");
 log.enabled = true;
@@ -97,7 +97,7 @@ export class Recorder extends EventEmitter {
 			out.on("done", () => {
 				this.emit("recorded", fp, user);
 				log("done", fp, user);
-				uploadFileToConvex(fp);
+				// uploadFileToConvex(fp);
 			});
 
 			const meta = path.join(this.dir, user, "meta.json");

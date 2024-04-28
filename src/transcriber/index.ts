@@ -13,6 +13,46 @@ interface whisperOutput {
 	translation: string | null;
 }
 
+interface ReplicateOutput {
+	text: string;
+	chunks: {
+		text: string;
+		timestamp: [number, number];
+	}[];
+}
+
+interface ReplicateTask {
+	completed_at: string;
+	created_at: string;
+	error: any;
+	id: string;
+	input: {
+		task: string;
+		audio: string;
+		batch_size: number;
+		return_timestamps: boolean;
+	};
+	logs: any;
+	metrics: {
+		predict_time: number;
+		total_time: number;
+	};
+	output: {
+		text: string;
+		chunks: {
+			text: string;
+			timestamp: [number, number];
+		}[];
+	};
+	started_at: string;
+	status: string;
+	urls: {
+		get: string;
+		cancel: string;
+	};
+	version: string;
+}
+
 config();
 
 const log = debug("transcriber");
@@ -51,17 +91,37 @@ export const local_transcribe = model
 	: undefined;
 
 export const remote_transcribe = server
-	? async (file: string, options: { language?: string; prompt?: string } = {}) => {
+	? async (fileUrl: string, options: { language?: string; prompt?: string } = {}) => {
+			const audio = fs.readFileSync(fileUrl);
+			// await log(audio);
+
+			const replicateOutput = (await replicate.run(
+				"vaibhavs10/incredibly-fast-whisper:3ab86df6c8f54c11309d4d1f930ac292bad43ace52d10c80d87eb258b3c9f79c",
+				{
+					input: {
+						task: "transcribe",
+						audio: audio,
+						// audio: "https://replicate.delivery/pbxt/Js2Fgx9MSOCzdTnzHQLJXj7abLp3JLIG3iqdsYXV24tHIdk8/OSR_uk_000_0050_8k.wav",
+						language: "None",
+						timestamp: "chunk",
+						batch_size: 64,
+						return_timestamps: true,
+						diarise_audio: false,
+					},
+				},
+			)) as ReplicateOutput;
+			log(replicateOutput);
+
 			// const replicateOutput = (await replicate.run(
-			// 	'openai/whisper:4d50797290df275329f202e48c76360b3f22b08d28c196cbc54600319435f8d2',
+			// 	"openai/whisper:4d50797290df275329f202e48c76360b3f22b08d28c196cbc54600319435f8d2",
 			// 	{
 			// 		input: {
-			// 			audio: args.fileUrl,
-			// 			model: 'large-v3',
+			// 			audio: fileUrl,
+			// 			model: "large-v3",
 			// 			translate: false,
 			// 			temperature: 0,
-			// 			transcription: 'plain text',
-			// 			suppress_tokens: '-1',
+			// 			transcription: "plain text",
+			// 			suppress_tokens: "-1",
 			// 			logprob_threshold: -1,
 			// 			no_speech_threshold: 0.6,
 			// 			condition_on_previous_text: true,
@@ -70,19 +130,28 @@ export const remote_transcribe = server
 			// 		},
 			// 	},
 			// )) as whisperOutput;
-
-			// const transcript = replicateOutput.transcription || 'error';
-			// if (transcript=='error') {
-			// 	throw new Error(`Server returned ${res.status}`);
+			// const transcript = replicateOutput.transcription || "error";
+			// log(transcript);
+			// if (transcript == "error") {
+			// 	throw new Error(`Server returned ${transcript}`);
 			// }
+			// const result = [
+			// 	{
+			// 		text: replicateOutput.transcription,
+			// 		from: -1,
+			// 		to: -1,
+			// 	},
+			// ];
 
-			// const result = {
-			// 	text: replicateOutput.transcription,
-			// 	from: -1,
-			// 	to: -1,
-			// }
+			const result = [
+				{
+					text: replicateOutput.text,
+					from: -1,
+					to: -1,
+				},
+			];
 
-			const result = [{ text: "replicate transcribe not implemented", start: -1, end: -1 }];
+			// const result = [{ text: "replicate transcribe not implemented", start: -1, end: -1 }];
 			return { result };
 		}
 	: undefined;
@@ -91,3 +160,21 @@ log({
 	model,
 	server,
 });
+
+//   transcriber {
+//   transcriber   chunks: [
+//   transcriber     {
+//   transcriber       text: ' the little tales they tell are false the door was barred locked and bolted as well ripe pears are fit hours fly by much too soon. The room was crowded',
+//   transcriber       timestamp: [Array]
+//   transcriber     },
+//   transcriber     {
+//   transcriber       text: ' with a mild wab. The room was crowded with a wild mob. This strong arm shall shield your',
+//   transcriber       timestamp: [Array]
+//   transcriber     },
+//   transcriber     {
+//   transcriber       text: ' honour. She blushed when he gave her a white orchid The beetle droned in the hot June sun',
+//   transcriber       timestamp: [Array]
+//   transcriber     }
+//   transcriber   ],
+//   transcriber   text: ' the little tales they tell are false the door was barred locked and bolted as well ripe pears are fit hours fly by much too soon. The room was crowded with a mild wab. The room was crowded with a wild mob. This strong arm shall shield your honour. She blushed when he gave her a white orchid The beetle droned in the hot June sun'
+//   transcriber } +4s

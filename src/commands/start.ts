@@ -1,8 +1,13 @@
 import { joinVoiceChannel } from "@discordjs/voice";
+import debug from "debug";
 import fs from "node:fs";
+import { uploadFileToConvex } from "../../convex/convexuploader";
 import { add } from "../recorder";
 import { local_transcribe, remote_transcribe } from "../transcriber";
 import type { Command } from "./types";
+
+const log = debug("bot:commands");
+log.enabled = true;
 
 const command: Command = {
 	name: "start",
@@ -74,9 +79,13 @@ const command: Command = {
 		const recorder = add(conn, channel, interaction.member);
 
 		recorder.on("recorded", async (wav: string, user_id: string) => {
-			console.log("Recorded", wav);
+			log("Recorded", wav);
 
 			// upload to convex
+			const basePath = "/Users/chris/workspace/discorder/";
+			const relativeFilePath = "./" + wav.replace(basePath, "");
+			log("Uploading path", relativeFilePath);
+			uploadFileToConvex(wav);
 
 			// transcribe
 			let text = "";

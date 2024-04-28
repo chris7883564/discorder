@@ -2,13 +2,13 @@ import * as dotenv from "dotenv";
 dotenv.config({ path: ".env.local" });
 
 import debug from "debug";
-const log = debug("recorder");
+const log = debug("convex");
 log.enabled = true;
 
 import { ConvexHttpClient } from "convex/browser";
 import * as fs from "node:fs/promises";
 
-import { api } from "../../convex/_generated/api";
+import { api } from "./_generated/api";
 
 const address = process.env.CONVEX_URL;
 const client = new ConvexHttpClient(String(address));
