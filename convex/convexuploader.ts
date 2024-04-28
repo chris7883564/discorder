@@ -6,7 +6,7 @@ const log = debug("convex");
 log.enabled = true;
 
 import { ConvexHttpClient } from "convex/browser";
-import * as fs from "node:fs/promises";
+import fs from "node:fs";
 
 import { api } from "./_generated/api";
 
@@ -21,7 +21,7 @@ export async function uploadFileToConvex(filename: string) {
 	const uploadURL = await client.mutation(api.stems.generateUploadUrl);
 
 	// const filename = "./data/recording/1714273057501/1007158516705927243/00000524.wav";
-	const file = await fs.readFile(filename);
+	const file = await fs.readFileSync(filename);
 
 	const result = await fetch(uploadURL, {
 		method: "POST",
