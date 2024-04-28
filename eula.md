@@ -9,7 +9,7 @@ By using the software, you agree to be bound by the terms of this agreement. If 
 -   The software includes a feature for collecting de-identified audio data and transcriptions to build a public dataset (the "Collected Data"). By using the software, you consent to the collection and usage of the Collected Data as described herein.
 -   The Collected Data will be made publicly available and can be used for research and development purposes, among others.
 -   We will take reasonable steps to ensure that the Collected Data is de-identified. However, you are responsible for ensuring that any data you contribute does not violate any privacy laws or regulations.
--   You may request that we remove any Collected Data that you have contributed by contacting the maintainer of the software at `discorder@csie.cool`.
+-   You may request that we remove any Collected Data that you have contributed by contacting the maintainer of the software at `discorder@musecopilot.com`.
 
 2. **No Warranty**
 
