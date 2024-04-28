@@ -72,7 +72,7 @@ export class Recorder extends EventEmitter {
 			this.emit("speaking", user);
 
 			const audio = this.conn.receiver.subscribe(user, {
-				end: { behavior: EndBehaviorType.AfterSilence, duration: 1000 },
+				end: { behavior: EndBehaviorType.AfterSilence, duration: 2000 },
 			});
 
 			const time_offset = Date.now() - this.start;
@@ -96,7 +96,7 @@ export class Recorder extends EventEmitter {
 
 			out.on("done", () => {
 				this.emit("recorded", fp, user);
-				log("done", fp, user);
+				log("done", user);
 				// uploadFileToConvex(fp);
 			});
 

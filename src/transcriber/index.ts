@@ -106,7 +106,7 @@ export const remote_transcribe = server
 					},
 				},
 			)) as ReplicateOutput;
-			log(replicateOutput);
+			// log(replicateOutput.text);
 
 			// const replicateOutput = (await replicate.run(
 			// 	"openai/whisper:4d50797290df275329f202e48c76360b3f22b08d28c196cbc54600319435f8d2",

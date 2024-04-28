@@ -79,12 +79,12 @@ const command: Command = {
 		const recorder = add(conn, channel, interaction.member);
 
 		recorder.on("recorded", async (wav: string, user_id: string) => {
-			log("Recorded", wav);
+			// log("Recorded", wav);
 
 			// upload to convex
 			const basePath = "/Users/chris/workspace/discorder/";
 			const relativeFilePath = "./" + wav.replace(basePath, "");
-			log("Uploading path", relativeFilePath);
+			// log("Uploading path", relativeFilePath);
 			uploadFileToConvex(wav);
 
 			// transcribe
@@ -109,7 +109,7 @@ const command: Command = {
 
 				const username = channel.guild.members.cache.get(user_id)?.displayName ?? user_id;
 				// await live_chan.send({ content: `**${username}**: ${text}` });
-				console.log(`**${username}**: ${text}`);
+				log(`**${username}**: ${text}`);
 			}
 		});
 
