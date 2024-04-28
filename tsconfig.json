@@ -24,5 +24,8 @@
 			"@/*": ["./src/*"]
 		},
 		"sourceMap": false
+	},
+	"buildOptions": {
+		"platform": "node"
 	}
 }
