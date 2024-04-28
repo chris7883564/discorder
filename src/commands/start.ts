@@ -86,6 +86,7 @@ const command: Command = {
 				time_offset: number,
 				guild_id: string,
 				channel_id: string,
+				metadata: string,
 			) => {
 				// log("Recorded", wav_filename);
 
@@ -93,7 +94,14 @@ const command: Command = {
 				// const basePath = "/Users/chris/workspace/discorder/";
 				// const relativeFilePath = "./" + wav.replace(basePath, "");
 				// log("Uploading path", relativeFilePath);
-				uploadFileToConvex(wav_filename, user_id, time_offset, guild_id, channel_id);
+				uploadFileToConvex(
+					wav_filename,
+					user_id,
+					time_offset,
+					guild_id,
+					channel_id,
+					metadata,
+				);
 
 				// transcribe
 				let text = "";

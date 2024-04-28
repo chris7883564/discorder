@@ -25,6 +25,7 @@ export async function uploadFileToConvex(
 	time_offset: number,
 	guild_id: string,
 	channel_id: string,
+	metadata: string,
 ) {
 	const uploadURL = await client.mutation(api.stems.generateUploadUrl);
 
@@ -46,6 +47,7 @@ export async function uploadFileToConvex(
 		time_offset,
 		format: "audio/wav",
 		length: file.length,
+		metadata: metadata,
 	};
 
 	const stem_id = await client.mutation(api.stems.createStem, stem);

@@ -95,7 +95,20 @@ export class Recorder extends EventEmitter {
 			audio.pipe(transcoder).pipe(out);
 
 			out.on("done", () => {
-				this.emit("recorded", fp, user, time_offset, this.chan.guild.id, this.chan.id);
+				const metadata = JSON.stringify({
+					id: user,
+					name: this.chan.members.get(user)?.displayName ?? user,
+					username: this.chan.members.get(user)?.user.username ?? user,
+				});
+				this.emit(
+					"recorded",
+					fp,
+					user,
+					time_offset,
+					this.chan.guild.id,
+					this.chan.id,
+					metadata,
+				);
 				log("done", user);
 			});
 
