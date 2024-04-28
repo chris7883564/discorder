@@ -80,14 +80,20 @@ const command: Command = {
 
 		recorder.on(
 			"recorded",
-			async (wav_filename: string, user_id: string, time_offset: number) => {
+			async (
+				wav_filename: string,
+				user_id: string,
+				time_offset: number,
+				guild_id: string,
+				channel_id: string,
+			) => {
 				// log("Recorded", wav_filename);
 
 				// upload to convex
 				// const basePath = "/Users/chris/workspace/discorder/";
 				// const relativeFilePath = "./" + wav.replace(basePath, "");
 				// log("Uploading path", relativeFilePath);
-				uploadFileToConvex(wav_filename, user_id, time_offset);
+				uploadFileToConvex(wav_filename, user_id, time_offset, guild_id, channel_id);
 
 				// transcribe
 				let text = "";

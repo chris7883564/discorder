@@ -19,7 +19,13 @@ export function test1() {
 	return client.query(api.tasks.getTasks);
 }
 
-export async function uploadFileToConvex(filename: string, talker_id: string, time_offset: number) {
+export async function uploadFileToConvex(
+	filename: string,
+	talker_id: string,
+	time_offset: number,
+	guild_id: string,
+	channel_id: string,
+) {
 	const uploadURL = await client.mutation(api.stems.generateUploadUrl);
 
 	// upload the file to convex
@@ -33,8 +39,10 @@ export async function uploadFileToConvex(filename: string, talker_id: string, ti
 
 	// write to stem table
 	const stem = {
-		talker_id,
 		storage_id: storageId,
+		talker_id,
+		guild_id,
+		channel_id,
 		time_offset,
 		format: "audio/wav",
 		length: file.length,

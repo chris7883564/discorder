@@ -95,9 +95,8 @@ export class Recorder extends EventEmitter {
 			audio.pipe(transcoder).pipe(out);
 
 			out.on("done", () => {
-				this.emit("recorded", fp, user, time_offset);
+				this.emit("recorded", fp, user, time_offset, this.chan.guild.id, this.chan.id);
 				log("done", user);
-				// uploadFileToConvex(fp);
 			});
 
 			const meta = path.join(this.dir, user, "meta.json");
