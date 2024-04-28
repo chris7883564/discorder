@@ -15,9 +15,13 @@ const address = process.env.CONVEX_URL;
 log("CONVEX_URL = " + address);
 const client = new ConvexHttpClient(String(address));
 
-export function test1() {
-	return client.query(api.tasks.getTasks);
-}
+const computeTodaysSessionId = () => {
+	const date = new Date();
+	const year = date.getUTCFullYear();
+	const month = String(date.getUTCMonth() + 1).padStart(2, "0"); // Months are 0-based in JavaScript
+	const day = String(date.getUTCDate()).padStart(2, "0");
+	return `${year}${month}${day}`;
+};
 
 export async function uploadFileToConvex(
 	filename: string,
@@ -40,6 +44,7 @@ export async function uploadFileToConvex(
 
 	// write to stem table
 	const stem = {
+		session_id: computeTodaysSessionId(),
 		storage_id: storageId,
 		talker_id,
 		guild_id,
