@@ -2,7 +2,7 @@ import * as dotenv from "dotenv";
 dotenv.config({ path: ".env.local" });
 
 import debug from "debug";
-const log = debug("bot");
+const log = debug("recorder");
 log.enabled = true;
 
 import { ConvexHttpClient } from "convex/browser";
