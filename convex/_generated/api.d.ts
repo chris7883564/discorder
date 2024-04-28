@@ -9,7 +9,11 @@
  * @module
  */
 
-import type { ApiFromModules, FilterApi, FunctionReference } from "convex/server";
+import type {
+  ApiFromModules,
+  FilterApi,
+  FunctionReference,
+} from "convex/server";
 import type * as convexuploader from "../convexuploader.js";
 import type * as stems from "../stems.js";
 import type * as tasks from "../tasks.js";
@@ -23,9 +27,15 @@ import type * as tasks from "../tasks.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
-	convexuploader: typeof convexuploader;
-	stems: typeof stems;
-	tasks: typeof tasks;
+  convexuploader: typeof convexuploader;
+  stems: typeof stems;
+  tasks: typeof tasks;
 }>;
-export declare const api: FilterApi<typeof fullApi, FunctionReference<any, "public">>;
-export declare const internal: FilterApi<typeof fullApi, FunctionReference<any, "internal">>;
+export declare const api: FilterApi<
+  typeof fullApi,
+  FunctionReference<any, "public">
+>;
+export declare const internal: FilterApi<
+  typeof fullApi,
+  FunctionReference<any, "internal">
+>;
