@@ -72,8 +72,13 @@ const command: Command = {
 		});
 
 		const recorder = add(conn, channel, interaction.member);
+
 		recorder.on("recorded", async (wav: string, user_id: string) => {
 			console.log("Recorded", wav);
+
+			// upload to convex
+
+			// transcribe
 			let text = "";
 			if (local_transcribe) {
 				const { result } = await local_transcribe(wav, {
