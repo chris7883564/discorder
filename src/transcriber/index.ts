@@ -1,6 +1,5 @@
 import debug from "debug";
 import { config } from "dotenv";
-import { decode } from "node-wav";
 import fs from "node:fs";
 import Replicate from "replicate";
 
@@ -61,18 +60,18 @@ log.enabled = true;
 const model = process.env.WHISPER_MODEL;
 const server = process.env.REPLICATE_API_KEY;
 
-export function read_wav(file: string): Float32Array {
-	const { sampleRate, channelData } = decode(fs.readFileSync(file));
+// export function read_wav(file: string): Float32Array {
+// 	const { sampleRate, channelData } = decode(fs.readFileSync(file));
 
-	if (sampleRate !== 16000) {
-		throw new Error(`Invalid sample rate: ${sampleRate}`);
-	}
-	if (channelData.length !== 1) {
-		throw new Error(`Invalid channel count: ${channelData.length}`);
-	}
+// 	if (sampleRate !== 16000) {
+// 		throw new Error(`Invalid sample rate: ${sampleRate}`);
+// 	}
+// 	if (channelData.length !== 1) {
+// 		throw new Error(`Invalid channel count: ${channelData.length}`);
+// 	}
 
-	return channelData[0];
-}
+// 	return channelData[0];
+// }
 
 export const local_transcribe = model
 	? async (file: string, options: { language?: string; initial_prompt?: string } = {}) => {
@@ -93,15 +92,12 @@ export const local_transcribe = model
 export const remote_transcribe = server
 	? async (fileUrl: string, options: { language?: string; prompt?: string } = {}) => {
 			const audio = fs.readFileSync(fileUrl);
-			// await log(audio);
-
 			const replicateOutput = (await replicate.run(
 				"vaibhavs10/incredibly-fast-whisper:3ab86df6c8f54c11309d4d1f930ac292bad43ace52d10c80d87eb258b3c9f79c",
 				{
 					input: {
 						task: "transcribe",
 						audio: audio,
-						// audio: "https://replicate.delivery/pbxt/Js2Fgx9MSOCzdTnzHQLJXj7abLp3JLIG3iqdsYXV24tHIdk8/OSR_uk_000_0050_8k.wav",
 						language: "None",
 						timestamp: "chunk",
 						batch_size: 64,
@@ -160,21 +156,3 @@ log({
 	model,
 	server,
 });
-
-//   transcriber {
-//   transcriber   chunks: [
-//   transcriber     {
-//   transcriber       text: ' the little tales they tell are false the door was barred locked and bolted as well ripe pears are fit hours fly by much too soon. The room was crowded',
-//   transcriber       timestamp: [Array]
-//   transcriber     },
-//   transcriber     {
-//   transcriber       text: ' with a mild wab. The room was crowded with a wild mob. This strong arm shall shield your',
-//   transcriber       timestamp: [Array]
-//   transcriber     },
-//   transcriber     {
-//   transcriber       text: ' honour. She blushed when he gave her a white orchid The beetle droned in the hot June sun',
-//   transcriber       timestamp: [Array]
-//   transcriber     }
-//   transcriber   ],
-//   transcriber   text: ' the little tales they tell are false the door was barred locked and bolted as well ripe pears are fit hours fly by much too soon. The room was crowded with a mild wab. The room was crowded with a wild mob. This strong arm shall shield your honour. She blushed when he gave her a white orchid The beetle droned in the hot June sun'
-//   transcriber } +4s
