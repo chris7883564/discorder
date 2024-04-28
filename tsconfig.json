@@ -1,6 +1,6 @@
 {
 	"include": ["**/*.ts", "**/*.js"],
-	"exclude": ["**/dist", "**/lib"],
+	"exclude": ["**/dist", "**/lib", "**/*.unused"],
 	"compilerOptions": {
 		// These compiler options are required by Convex
 		"target": "ESNext",
