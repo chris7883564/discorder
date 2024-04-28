@@ -2,7 +2,7 @@
 import path from "node:path";
 
 // config();
-import "./envConfig.ts";
+import "./envConfig";
 
 export const BOT_TOKEN = process.env.BOT_TOKEN ?? "";
 export const BOT_ID = process.env.BOT_ID ?? "";

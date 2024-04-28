@@ -78,40 +78,44 @@ const command: Command = {
 
 		const recorder = add(conn, channel, interaction.member);
 
-		recorder.on("recorded", async (wav: string, user_id: string) => {
-			// log("Recorded", wav);
+		recorder.on(
+			"recorded",
+			async (wav_filename: string, user_id: string, time_offset: number) => {
+				// log("Recorded", wav_filename);
 
-			// upload to convex
-			const basePath = "/Users/chris/workspace/discorder/";
-			const relativeFilePath = "./" + wav.replace(basePath, "");
-			// log("Uploading path", relativeFilePath);
-			uploadFileToConvex(wav);
+				// upload to convex
+				// const basePath = "/Users/chris/workspace/discorder/";
+				// const relativeFilePath = "./" + wav.replace(basePath, "");
+				// log("Uploading path", relativeFilePath);
+				uploadFileToConvex(wav_filename, user_id, time_offset);
 
-			// transcribe
-			let text = "";
-			if (local_transcribe) {
-				const { result } = await local_transcribe(wav, {
-					language: language ?? undefined,
-					initial_prompt: prompt ?? undefined,
-				});
-				text = (await result).map((x) => x.text).join(" ");
-			} else if (remote_transcribe) {
-				const { result } = await remote_transcribe(wav, {
-					language: language ?? undefined,
-					prompt: prompt ?? undefined,
-				});
-				text = result.map((x) => x.text).join(" ");
-			}
+				// transcribe
+				let text = "";
+				if (local_transcribe) {
+					const { result } = await local_transcribe(wav_filename, {
+						language: language ?? undefined,
+						initial_prompt: prompt ?? undefined,
+					});
+					text = (await result).map((x) => x.text).join(" ");
+				} else if (remote_transcribe) {
+					const { result } = await remote_transcribe(wav_filename, {
+						language: language ?? undefined,
+						prompt: prompt ?? undefined,
+					});
+					text = result.map((x) => x.text).join(" ");
+				}
 
-			if (text) {
-				const fp = wav.replace(/\.wav$/, ".txt");
-				fs.writeFileSync(fp, text);
+				if (text) {
+					const fp = wav_filename.replace(/\.wav$/, ".txt");
+					fs.writeFileSync(fp, text);
 
-				const username = channel.guild.members.cache.get(user_id)?.displayName ?? user_id;
-				// await live_chan.send({ content: `**${username}**: ${text}` });
-				log(`**${username}**: ${text}`);
-			}
-		});
+					const username =
+						channel.guild.members.cache.get(user_id)?.displayName ?? user_id;
+					// await live_chan.send({ content: `**${username}**: ${text}` });
+					log(`**${username}**: ${text}`);
+				}
+			},
+		);
 
 		await interaction.reply("Starting the recorder!");
 	},

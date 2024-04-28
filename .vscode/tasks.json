@@ -1,13 +1,19 @@
+// .vscode/tasks.json
 {
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"type": "npm",
-			"script": "build",
-			"group": "build",
-			"problemMatcher": [],
-			"label": "pnpm: build",
-			"detail": "tsup"
+			"type": "shell",
+			"label": "build",
+			"command": "npm run build",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"presentation": {
+				"reveal": "always"
+			},
+			"problemMatcher": []
 		}
 	]
 }

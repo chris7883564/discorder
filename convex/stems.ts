@@ -18,6 +18,10 @@ export const generateUploadUrl = mutation(async (ctx) => {
 	return await ctx.storage.generateUploadUrl();
 });
 
+export const createStem = mutation(async (ctx, args) => {
+	return await ctx.db.insert("stems", args);
+});
+
 // export const sendImage = mutation({
 //   args: { storageId: v.id("_storage"), author: v.string() },
 //   handler: async (ctx, args) => {

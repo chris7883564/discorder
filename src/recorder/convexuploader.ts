@@ -1,10 +1,10 @@
 // "use node";
 
 import debug from "debug";
-const log = debug("convex");
+const log = debug("convexuploader");
 log.enabled = true;
 
-import "../envConfig.js";
+import "../envConfig";
 
 import { ConvexHttpClient } from "convex/browser";
 import fs from "node:fs";
@@ -19,19 +19,31 @@ export function test1() {
 	return client.query(api.tasks.getTasks);
 }
 
-export async function uploadFileToConvex(filename: string) {
+export async function uploadFileToConvex(filename: string, talker_id: string, time_offset: number) {
 	const uploadURL = await client.mutation(api.stems.generateUploadUrl);
 
+	// upload the file to convex
 	const file = await fs.readFileSync(filename);
-
 	const result = await fetch(uploadURL, {
 		method: "POST",
 		headers: { "Content-Type": "audio/wav" },
 		body: file.buffer,
 	});
 	const { storageId } = (await result.json()) as { storageId: string };
+
+	// write to stem table
+	const stem = {
+		talker_id,
+		storage_id: storageId,
+		time_offset,
+		format: "audio/wav",
+		length: file.length,
+	};
+
+	const stem_id = await client.mutation(api.stems.createStem, stem);
+
 	// log(
 	// 	`uploaded [${filename}] ${file.length} bytes to [${uploadURL}]. storageId = [${storageId}]`,
 	// );
-	log(`uploaded ${file.length} bytes.`);
+	log(JSON.stringify(stem, null, 2));
 }
