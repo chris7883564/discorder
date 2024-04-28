@@ -1,5 +1,7 @@
+"use node";
+
 import debug from "debug";
-import { config } from "dotenv";
+// import { config } from "dotenv";
 import fs from "node:fs";
 import Replicate from "replicate";
 
@@ -51,8 +53,6 @@ interface ReplicateTask {
 	};
 	version: string;
 }
-
-config();
 
 const log = debug("transcriber");
 log.enabled = true;

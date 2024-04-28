@@ -32,7 +32,6 @@
 		"convex": "^1.11.2",
 		"debug": "^4.3.4",
 		"discord.js": "^14.14.1",
-		"dotenv": "^16.4.5",
 		"libsodium-wrappers": "^0.7.13",
 		"openai": "^4.24.1",
 		"prism-media": "^1.3.5",
