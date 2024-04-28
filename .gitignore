@@ -7,6 +7,8 @@ yarn-error.log*
 lerna-debug.log*
 .pnpm-debug.log*
 
+#generated files
+
 #project files
 media
 *.map
@@ -139,8 +141,6 @@ lib
 
 # generated docs
 docs
-
+convex/_generated
 .pnpm-store
-
-recording/
-data/
+data
