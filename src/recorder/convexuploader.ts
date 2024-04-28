@@ -4,12 +4,12 @@ import debug from "debug";
 const log = debug("convex");
 log.enabled = true;
 
-import "../src/envConfig.ts";
+import "../envConfig.js";
 
 import { ConvexHttpClient } from "convex/browser";
 import fs from "node:fs";
 
-import { api } from "./_generated/api";
+import { api } from "../../convex/_generated/api.js";
 
 const address = process.env.CONVEX_URL;
 log("CONVEX_URL = " + address);

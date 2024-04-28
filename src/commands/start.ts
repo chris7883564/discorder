@@ -1,8 +1,8 @@
 import { joinVoiceChannel } from "@discordjs/voice";
 import debug from "debug";
 import fs from "node:fs";
-import { uploadFileToConvex } from "../../convex/convexuploader";
 import { add } from "../recorder";
+import { uploadFileToConvex } from "../recorder/convexuploader";
 import { local_transcribe, remote_transcribe } from "../transcriber";
 import type { Command } from "./types";
 
