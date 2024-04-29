@@ -31,34 +31,41 @@ export async function uploadFileToConvex(
 	channel_id: string,
 	metadata: string,
 ) {
-	const uploadURL = await client.mutation(api.stems.generateUploadUrl);
+	try {
+		// get the upload URL
+		const uploadURL = await client.mutation(api.stems.generateUploadUrl);
 
-	// upload the file to convex
-	const file = await fs.readFileSync(filename);
-	const result = await fetch(uploadURL, {
-		method: "POST",
-		headers: { "Content-Type": "audio/wav" },
-		body: file.buffer,
-	});
-	const { storageId } = (await result.json()) as { storageId: string };
+		// upload the file to convex
+		const file = await fs.readFileSync(filename);
+		const result = await fetch(uploadURL, {
+			method: "POST",
+			headers: { "Content-Type": "audio/wav" },
+			body: file.buffer,
+		});
+		const { storageId } = (await result.json()) as { storageId: string };
 
-	// write to stem table
-	const stem = {
-		session_id: computeTodaysSessionId(),
-		storage_id: storageId,
-		talker_id,
-		guild_id,
-		channel_id,
-		time_offset,
-		format: "audio/wav",
-		length: file.length,
-		metadata: metadata,
-	};
+		// write to stem table
+		const stem = {
+			session_id: computeTodaysSessionId(),
+			storage_id: storageId,
+			talker_id,
+			guild_id,
+			channel_id,
+			time_offset,
+			format: "audio/wav",
+			length: file.length,
+			metadata: metadata,
+			text: "",
+			generatingTranscript: false,
+		};
 
-	const stem_id = await client.mutation(api.stems.createStem, stem);
+		const stem_id = await client.mutation(api.stems.createStem, stem);
 
-	// log(
-	// 	`uploaded [${filename}] ${file.length} bytes to [${uploadURL}]. storageId = [${storageId}]`,
-	// );
-	log(JSON.stringify(stem, null, 2));
+		// log(
+		// 	`uploaded [${filename}] ${file.length} bytes to [${uploadURL}]. storageId = [${storageId}]`,
+		// );
+		log(JSON.stringify(stem, null, 2));
+	} catch (e) {
+		log("error: convex loader failed", e);
+	}
 }

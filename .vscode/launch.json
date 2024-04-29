@@ -13,7 +13,7 @@
 			"name": "Launch Program",
 			"skipFiles": ["<node_internals>/**"],
 			"program": "${workspaceFolder}/dist/index.js",
-			"preLaunchTask": "build",
+			"preLaunchTask": "prelaunch",
 			"console": "integratedTerminal",
 			"runtimeExecutable": "/usr/bin/env",
 			"runtimeArgs": ["arch", "-x86_64", "node"]

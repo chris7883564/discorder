@@ -5,14 +5,22 @@
 		{
 			"type": "shell",
 			"label": "build",
-			"command": "npm run build",
-			"group": {
-				"kind": "build",
-				"isDefault": true
-			},
-			"presentation": {
-				"reveal": "always"
-			},
+			"command": "reset && npm run build",
+			"group": { "kind": "build", "isDefault": true },
+			"presentation": { "reveal": "silent", "panel": "shared" },
+			"problemMatcher": []
+		},
+		{
+			"label": "convex",
+			"type": "shell",
+			"command": "reset && npx convex dev --once",
+			"presentation": { "reveal": "silent", "panel": "shared" },
+			"problemMatcher": []
+		},
+		{
+			"label": "prelaunch",
+			"dependsOn": ["convex", "build"],
+			"presentation": { "reveal": "silent", "panel": "shared" },
 			"problemMatcher": []
 		}
 	]
