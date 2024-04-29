@@ -103,30 +103,32 @@ const command: Command = {
 					metadata,
 				);
 
-				// transcribe
-				let text = "";
-				if (local_transcribe) {
-					const { result } = await local_transcribe(wav_filename, {
-						language: language ?? undefined,
-						initial_prompt: prompt ?? undefined,
-					});
-					text = (await result).map((x) => x.text).join(" ");
-				} else if (remote_transcribe) {
-					const { result } = await remote_transcribe(wav_filename, {
-						language: language ?? undefined,
-						prompt: prompt ?? undefined,
-					});
-					text = result.map((x) => x.text).join(" ");
-				}
+				// transcribe NEVER
+				if (0) {
+					let text = "";
+					if (local_transcribe) {
+						const { result } = await local_transcribe(wav_filename, {
+							language: language ?? undefined,
+							initial_prompt: prompt ?? undefined,
+						});
+						text = (await result).map((x) => x.text).join(" ");
+					} else if (remote_transcribe) {
+						const { result } = await remote_transcribe(wav_filename, {
+							language: language ?? undefined,
+							prompt: prompt ?? undefined,
+						});
+						text = result.map((x) => x.text).join(" ");
+					}
 
-				if (text) {
-					const fp = wav_filename.replace(/\.wav$/, ".txt");
-					fs.writeFileSync(fp, text);
+					if (text) {
+						const fp = wav_filename.replace(/\.wav$/, ".txt");
+						fs.writeFileSync(fp, text);
 
-					const username =
-						channel.guild.members.cache.get(user_id)?.displayName ?? user_id;
-					// await live_chan.send({ content: `**${username}**: ${text}` });
-					log(`**${username}**: ${text}`);
+						const username =
+							channel.guild.members.cache.get(user_id)?.displayName ?? user_id;
+						// await live_chan.send({ content: `**${username}**: ${text}` });
+						log(`**${username}**: ${text}`);
+					}
 				}
 			},
 		);
