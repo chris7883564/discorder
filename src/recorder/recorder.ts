@@ -16,7 +16,7 @@ log.enabled = true;
 
 const RATE = 16000;
 const CHANNELS = 1;
-const AFTER_SILENCE_MSECS = process.env.WHISPER_MODEL ?? 200;
+const AFTER_SILENCE_MSECS = process.env.WHISPER_MODEL ? Number(process.env.WHISPER_MODEL) : 200;
 
 export class Recorder extends EventEmitter {
 	public conn: VoiceConnection;
