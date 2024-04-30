@@ -16,6 +16,7 @@ log.enabled = true;
 
 const RATE = 16000;
 const CHANNELS = 1;
+const AFTER_SILENCE_MSECS = process.env.WHISPER_MODEL ?? 200;
 
 export class Recorder extends EventEmitter {
 	public conn: VoiceConnection;
@@ -72,7 +73,7 @@ export class Recorder extends EventEmitter {
 			this.emit("speaking", user);
 
 			const audio = this.conn.receiver.subscribe(user, {
-				end: { behavior: EndBehaviorType.AfterSilence, duration: 1000 },
+				end: { behavior: EndBehaviorType.AfterSilence, duration: AFTER_SILENCE_MSECS },
 			});
 
 			const time_offset = Date.now() - this.start;
@@ -86,14 +87,20 @@ export class Recorder extends EventEmitter {
 				this.recording.delete(user);
 			});
 
+			// step 1 - decode OPUS to PCM
 			const transcoder = new prism.opus.Decoder({
 				channels: CHANNELS,
 				rate: RATE,
 				frameSize: 960,
 			});
+
+			// step 2 - write to WAV file
 			const out = new wav.FileWriter(fp, { sampleRate: RATE, channels: CHANNELS });
+
+			// connect steps 1 and 2
 			audio.pipe(transcoder).pipe(out);
 
+			// process DONE events
 			out.on("done", () => {
 				const metadata = JSON.stringify({
 					id: user,

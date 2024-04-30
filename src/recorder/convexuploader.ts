@@ -61,10 +61,8 @@ export async function uploadFileToConvex(
 
 		const stem_id = await client.mutation(api.stems.createStem, stem);
 
-		// log(
-		// 	`uploaded [${filename}] ${file.length} bytes to [${uploadURL}]. storageId = [${storageId}]`,
-		// );
-		log(JSON.stringify(stem, null, 2));
+		log(`uploaded [${filename}] ${file.length} bytes. storageId = [${storageId}]`);
+		// log(JSON.stringify(stem, null, 2));
 	} catch (e) {
 		log("error: convex loader failed", e);
 	}
