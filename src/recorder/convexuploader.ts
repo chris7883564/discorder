@@ -76,7 +76,11 @@ export async function uploadFileToConvex(
 		// upload the file to convex
 		const uploadURL = new URL(`${convexSiteUrl}/upload`);
 		const file = await fs.readFileSync(filename);
+		uploadURL.searchParams.set("guild_id", guild_id);
 		uploadURL.searchParams.set("talker_id", talker_id);
+		uploadURL.searchParams.set("channel_id", channel_id);
+		uploadURL.searchParams.set("time_offset", String(time_offset));
+		// metadata???
 		log(uploadURL.href);
 
 		// set all the parameters, eg. talkerID, guild etc.
