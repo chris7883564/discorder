@@ -14,7 +14,9 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
+import type * as fastwhisper from "../fastwhisper.js";
 import type * as stems from "../stems.js";
+import type * as utils from "../utils.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -25,7 +27,9 @@ import type * as stems from "../stems.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  fastwhisper: typeof fastwhisper;
   stems: typeof stems;
+  utils: typeof utils;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

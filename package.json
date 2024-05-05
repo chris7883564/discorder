@@ -18,10 +18,10 @@
 		"changeset": "changeset",
 		"build": "tsup",
 		"start": "node dist/index.js",
-		"go": "tsup && arch --x86_64 node dist/index.js",
+		"dev": "reset && tsup && arch --x86_64 node dist/index.js",
 		"register": "node dist/register.js",
 		"deregister": "node dist/deregister.js",
-		"dev": "npm-run-all --parallel dev:backend dev:frontend",
+		"dev-both": "npm-run-all --parallel dev:backend dev:frontend",
 		"dev:backend": "npx convex dev",
 		"dev:frontend": "tsup && arch --x86_64 node dist/index.js"
 	},
