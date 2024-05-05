@@ -92,8 +92,9 @@ export async function uploadFileToConvex(
 		const result = await fetch(uploadURL, {
 			method: "POST",
 			headers: { "Content-Type": "audio/wav" },
+			body: file.buffer,
 		});
-		log(result.status);
+		log(result.status, file.buffer.byteLength);
 		// const { storageId } = (await result.json()) as { storageId: string };
 	} catch (e) {
 		log("error: convex loader failed", e);
