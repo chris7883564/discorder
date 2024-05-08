@@ -1,31 +1,31 @@
 {
-	"include": ["**/*.ts", "**/*.js"],
-	"exclude": ["**/dist", "**/lib", "**/*.unused"],
-	"compilerOptions": {
-		// These compiler options are required by Convex
-		"target": "ESNext",
-		"lib": ["ESNext"],
-		"forceConsistentCasingInFileNames": true,
-		"allowSyntheticDefaultImports": true,
-		"module": "ESNext",
-		"moduleResolution": "Node",
-		"isolatedModules": true,
-		"skipLibCheck": true,
-		"noEmit": true,
+  "include": ["**/*.ts", "**/*.js"],
+  "exclude": ["**/dist", "**/lib", "**/*.unused"],
+  "compilerOptions": {
+    // These compiler options are required by Convex
+    "target": "ESNext",
+    "lib": ["ESNext"],
+    "forceConsistentCasingInFileNames": true,
+    "allowSyntheticDefaultImports": true,
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "noEmit": true,
 
-		"resolveJsonModule": true,
-		"noEmitOnError": true,
-		"esModuleInterop": true,
-		"strict": true,
-		"noImplicitAny": true,
-		"noImplicitThis": true,
-		"noImplicitReturns": true,
-		"paths": {
-			"@/*": ["./src/*"]
-		},
-		"sourceMap": false
-	},
-	"buildOptions": {
-		"platform": "node"
-	}
+    "resolveJsonModule": true,
+    "noEmitOnError": true,
+    "esModuleInterop": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "noImplicitReturns": true,
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "sourceMap": false
+  },
+  "buildOptions": {
+    "platform": "node"
+  }
 }

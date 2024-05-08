@@ -1,7 +1,7 @@
 import type { VoiceConnection } from "@discordjs/voice";
 import { EndBehaviorType } from "@discordjs/voice";
 import debug from "debug";
-import type { GuildMember, VoiceBasedChannel } from "discord.js";
+import type { Guild, GuildMember, VoiceBasedChannel } from "discord.js";
 import { EventEmitter } from "node:events";
 import fs from "node:fs";
 import path from "node:path";
@@ -17,185 +17,199 @@ log.enabled = true;
 const RATE = 16000;
 const CHANNELS = 1;
 const AFTER_SILENCE_MSECS = process.env.AFTER_SILENCE_MSECS
-	? Number(process.env.AFTER_SILENCE_MSECS)
-	: 200;
+  ? Number(process.env.AFTER_SILENCE_MSECS)
+  : 200;
 
 export class Recorder extends EventEmitter {
-	public conn: VoiceConnection;
-	public chan: VoiceBasedChannel;
-	public user: GuildMember;
-	public start: number;
-	protected dir: string;
-	protected interval: NodeJS.Timeout | null = null;
-	protected recording = new Set<string>();
+  public conn: VoiceConnection;
+  public chan: VoiceBasedChannel;
+  public user: GuildMember;
+  public start: number;
+  public guild: Guild;
+  protected dir: string;
+  protected interval: NodeJS.Timeout | null = null;
+  protected recording = new Set<string>();
 
-	constructor(conn: VoiceConnection, chan: VoiceBasedChannel, user: GuildMember) {
-		super();
+  constructor(
+    conn: VoiceConnection,
+    chan: VoiceBasedChannel,
+    user: GuildMember,
+  ) {
+    super();
 
-		this.conn = conn;
-		this.chan = chan;
-		this.user = user;
+    this.conn = conn;
+    this.chan = chan;
+    this.user = user;
+    this.guild = chan.guild;
 
-		this.start = Date.now();
-		this.dir = path.join(RECORDING_DIR, this.start.toString());
-		fs.mkdirSync(this.dir, { recursive: true });
-		fs.writeFileSync(
-			path.join(this.dir, "meta.json"),
-			JSON.stringify({
-				start: new Date(this.start).toISOString(),
-				guild: this.chan.guild.id,
-				channel: this.chan.id,
-				user: this.user.id,
-			}),
-		);
+    this.start = Date.now();
+    this.dir = path.join(
+      RECORDING_DIR,
+      this.guild.toString(),
+      this.start.toString(),
+    );
+    fs.mkdirSync(this.dir, { recursive: true });
 
-		this.setup();
-	}
+    // fs.writeFileSync(
+    // 	path.join(this.dir, "meta.json"),
+    // 	JSON.stringify({
+    // 		start: new Date(this.start).toISOString(),
+    // 		guild: this.chan.guild.id,
+    // 		channel: this.chan.id,
+    // 		user: this.user.id,
+    // 	}),
+    // );
 
-	protected setup() {
-		this.conn.on("error", log);
+    this.setup(this.chan.guild.id);
+  }
 
-		this.conn.receiver.speaking.on("start", async (user) => {
-			// ignore bots
-			if (this.chan.members.get(user)?.user.bot) {
-				return;
-			}
+  //---------------------------------------------------------------------
+  protected setup(guild_id: string) {
+    //--- event handler for connection errors
+    this.conn.on("error", log);
 
-			// // check EULA has been accepted by the user
-			// const eula = manager.get(user).eula;
-			// if (!eula) {
-			// 	return;
-			// }
+    //--- event handler for when speaking starts
+    this.conn.receiver.speaking.on("start", async (user) => {
+      // ignore bots
+      if (this.chan.members.get(user)?.user.bot) {
+        return;
+      }
 
-			if (this.recording.has(user)) {
-				return;
-			}
-			this.recording.add(user);
-			log("speaking start", user);
-			this.emit("speaking", user);
+      // // check EULA has been accepted by the user
+      // const eula = manager.get(user).eula;
+      // if (!eula) {
+      // 	return;
+      // }
 
-			const audio = this.conn.receiver.subscribe(user, {
-				end: { behavior: EndBehaviorType.AfterSilence, duration: AFTER_SILENCE_MSECS },
-			});
+      if (this.recording.has(user)) {
+        return;
+      }
+      this.recording.add(user);
+      log("speaking start", user);
+      this.emit("speaking", user);
 
-			const time_offset = Date.now() - this.start;
-			const fp = path.join(this.dir, user, `${time_offset.toString().padStart(8, "0")}.wav`);
-			if (!fs.existsSync(path.join(this.dir, user))) {
-				fs.mkdirSync(path.join(this.dir, user), { recursive: true });
-			}
+      const audio = this.conn.receiver.subscribe(user, {
+        end: {
+          behavior: EndBehaviorType.AfterSilence,
+          duration: AFTER_SILENCE_MSECS,
+        },
+      });
 
-			audio.once("end", () => {
-				log("speaking end", user);
-				this.recording.delete(user);
-			});
+      // build filename for this recording talkburst
+      const time_offset = Date.now() - this.start; // from start of this recording command session
+      const time_prefix = `${time_offset.toString().padStart(8, "0")}`;
+      // const fp = path.join(this.dir, user, `${time_prefix}.wav`)
+      const fp = path.join(
+        this.dir,
+        `${guild_id}_${user.toString()}_${time_prefix}.wav`,
+      );
 
-			// step 1 - decode OPUS to PCM
-			const transcoder = new prism.opus.Decoder({
-				channels: CHANNELS,
-				rate: RATE,
-				frameSize: 960,
-			});
+      // create directory for this user if it doesn't exist
+      // if (!fs.existsSync(path.join(this.dir, user))) {
+      //   fs.mkdirSync(path.join(this.dir, user), { recursive: true })
+      // }
 
-			// step 2 - write to WAV file
-			const out = new wav.FileWriter(fp, { sampleRate: RATE, channels: CHANNELS });
+      //--- event handler for when speaking ends
+      audio.once("end", () => {
+        log("speaking end", user);
+        this.recording.delete(user);
+      });
 
-			// connect steps 1 and 2
-			audio.pipe(transcoder).pipe(out);
+      // step 1 - decode OPUS to PCM
+      const transcoder = new prism.opus.Decoder({
+        channels: CHANNELS,
+        rate: RATE,
+        frameSize: 960,
+      });
 
-			// process DONE events
-			out.on("done", () => {
-				const metadata = JSON.stringify({
-					id: user,
-					name: this.chan.members.get(user)?.displayName ?? user,
-					username: this.chan.members.get(user)?.user.username ?? user,
-				});
-				this.emit(
-					"recorded",
-					fp,
-					user,
-					time_offset,
-					this.chan.guild.id,
-					this.chan.id,
-					metadata,
-				);
-				log("done", user);
-			});
+      // step 2 - write to WAV file
+      const out = new wav.FileWriter(fp, {
+        sampleRate: RATE,
+        channels: CHANNELS,
+      });
 
-			const meta = path.join(this.dir, user, "meta.json");
-			if (!fs.existsSync(meta)) {
-				fs.writeFileSync(
-					meta,
-					JSON.stringify({
-						id: user,
-						name: this.chan.members.get(user)?.displayName ?? user,
-						username: this.chan.members.get(user)?.user.username ?? user,
-					}),
-				);
-			}
-		});
+      // connect steps 1 and 2
+      audio.pipe(transcoder).pipe(out);
 
-		const client = this.chan.client;
-		client.on("voiceStateUpdate", (old, cur) => {
-			if (old.member?.id !== this.user.id) {
-				return;
-			}
+      // process DONE events
+      out.on("done", () => {
+        const metadata = JSON.stringify({
+          id: user,
+          name: this.chan.members.get(user)?.displayName ?? user,
+          username: this.chan.members.get(user)?.user.username ?? user,
+        });
+        this.emit(
+          "recorded",
+          fp,
+          user,
+          time_offset,
+          this.chan.guild.id,
+          this.chan.id,
+          metadata,
+        );
+        log("talk burst emitted", user);
+      });
+    });
 
-			if (old.channelId !== this.chan.id) {
-				return;
-			}
+    const client = this.chan.client;
+    client.on("voiceStateUpdate", (old, cur) => {
+      if (old.member?.id !== this.user.id) {
+        return;
+      }
 
-			if (cur.channelId === null) {
-				this.stop();
-			}
-		});
+      if (old.channelId !== this.chan.id) {
+        return;
+      }
 
-		this.interval = setInterval(() => {
-			if (this.conn.state.status === "destroyed") {
-				this.stop();
-			}
+      if (cur.channelId === null) {
+        this.stop();
+      }
+    });
 
-			const user = this.chan.members.get(this.user.id);
-			if (!user) {
-				this.stop();
-			}
-		}, 1000);
-	}
+    // check once per second for connection destroyed status
+    this.interval = setInterval(() => {
+      if (this.conn.state.status === "destroyed") {
+        this.stop();
+      }
+      const user = this.chan.members.get(this.user.id);
+      if (!user) {
+        this.stop();
+      }
+    }, 1000);
+  }
 
-	protected stopped = false;
-	public stop() {
-		if (this.stopped) {
-			return;
-		}
-		this.stopped = true;
+  protected stopped = false;
+  public stop() {
+    if (this.stopped) {
+      return;
+    }
+    this.stopped = true;
 
-		this.conn.destroy();
-		if (this.interval) {
-			clearInterval(this.interval);
-		}
-	}
+    this.conn.destroy();
+    if (this.interval) {
+      clearInterval(this.interval);
+    }
+  }
 
-	public gather(): [time: number, user: string, content: string][] {
-		const uids = fs
-			.readdirSync(this.dir, { withFileTypes: true })
-			.filter((x) => x.isDirectory());
-		const result: [time: number, user: string, content: string][] = [];
-		for (const uid of uids) {
-			const files = fs.readdirSync(path.join(this.dir, uid.name));
-			const meta = JSON.parse(
-				fs.readFileSync(path.join(this.dir, uid.name, "meta.json"), "utf-8"),
-			);
-			for (const file of files) {
-				if (!file.endsWith(".txt")) {
-					continue;
-				}
+  //--- old gather function, not used
+  // public gather(): [time: number, user: string, content: string][] {
+  //   const uids = fs.readdirSync(this.dir, { withFileTypes: true }).filter((x) => x.isDirectory())
+  //   const result: [time: number, user: string, content: string][] = []
+  //   for (const uid of uids) {
+  //     const files = fs.readdirSync(path.join(this.dir, uid.name))
+  //     const meta = JSON.parse(fs.readFileSync(path.join(this.dir, uid.name, "meta.json"), "utf-8"))
+  //     for (const file of files) {
+  //       if (!file.endsWith(".txt")) {
+  //         continue
+  //       }
 
-				const time = parseInt(file.replace(/\.txt$/, ""));
-				const content = fs.readFileSync(path.join(this.dir, uid.name, file), "utf-8");
-				result.push([time, meta.name, content]);
-			}
-		}
+  //       const time = parseInt(file.replace(/\.txt$/, ""))
+  //       const content = fs.readFileSync(path.join(this.dir, uid.name, file), "utf-8")
+  //       result.push([time, meta.name, content])
+  //     }
+  //   }
 
-		result.sort((a, b) => a[0] - b[0]);
-		return result;
-	}
+  //   result.sort((a, b) => a[0] - b[0])
+  //   return result
+  // }
 }
