@@ -9,13 +9,13 @@ export const bot = new Client({
   intents: ["GuildVoiceStates", "Guilds"],
 });
 
-async function postLinkDiscorder() {
+async function postLinkDiscorder(username: string) {
   const response = await fetch(
     "https://trustworthy-kudu-486.convex.site/linkdiscorder",
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ author: "chris", body: "YourMessageBody" }),
+      body: JSON.stringify({ author: username, body: "ready" }),
     },
   );
 
@@ -29,8 +29,8 @@ async function postLinkDiscorder() {
 }
 
 bot.on("ready", () => {
-  log("Logged in");
-  postLinkDiscorder().catch(console.error);
+  log(`Logged in as ${bot.user?.tag}`);
+  postLinkDiscorder(bot.user ? bot.user.tag : "unknown").catch(console.error);
 });
 
 bot.on("interactionCreate", (interaction) => {
