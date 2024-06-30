@@ -68,6 +68,17 @@ const command: Command = {
     // 	return;
     // }
 
+    // ----- process options from the command
+    const pin = interaction.options.getString("pin");
+    console.log("PIN ", pin);
+    if (!pin) {
+      console.log("Need to specify a PIN");
+      await interaction.reply(
+        "Need to specify a PIN from your Muse Copilot Game Card",
+      );
+      return;
+    }
+
     const conn = joinVoiceChannel({
       channelId: channel.id,
       guildId: channel.guild.id,
@@ -122,6 +133,18 @@ const command: Command = {
     );
 
     await interaction.reply("Recording has started.");
+  },
+  build: (builder) => {
+    console.log("Building start command");
+    builder.addStringOption((option) =>
+      option
+        .setName("pin")
+        .setDescription("Muse Copilot Game PIN code")
+        .setRequired(true)
+        .setMinLength(4)
+        .setMaxLength(4),
+    );
+    return builder;
   },
   // build: (builder) => {
   // 	console.log("Building start command");
