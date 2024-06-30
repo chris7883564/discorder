@@ -9,8 +9,8 @@ export const bot = new Client({
   intents: ["GuildVoiceStates", "Guilds"],
 });
 
-bot.on("ready", () => {
-  log("Logged in as ${bot.user.tag}!");
+bot.on("ready", (client) => {
+  log("Logged in as ${client.user.tag}!");
 });
 
 bot.on("interactionCreate", (interaction) => {
