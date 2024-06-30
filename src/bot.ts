@@ -9,13 +9,32 @@ export const bot = new Client({
   intents: ["GuildVoiceStates", "Guilds"],
 });
 
-bot.on("ready", (client) => {
-  log("Logged in as ${client.user.tag}!");
+async function postLinkDiscorder() {
+  const response = await fetch(
+    "https://trustworthy-kudu-486.convex.site/linkdiscorder",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ author: "chris", body: "YourMessageBody" }),
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error("Network response was not ok");
+  }
+
+  // Assuming you want to do something with the response
+  const data = await response.json(); // or .text() if it's not JSON
+  console.log(data);
+}
+
+bot.on("ready", () => {
+  log("Logged in");
+  postLinkDiscorder().catch(console.error);
 });
 
 bot.on("interactionCreate", (interaction) => {
   if (!interaction.isCommand()) {
-    log("Interaction received: %s %s", interaction.type, interaction.guildId);
     return;
   }
   try {
