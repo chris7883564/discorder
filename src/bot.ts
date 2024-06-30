@@ -24,8 +24,9 @@ async function postLinkDiscorder(username: string) {
   }
 
   // Assuming you want to do something with the response
-  const data = await response.json(); // or .text() if it's not JSON
-  console.log(data);
+  // const data = await response.json(); // or .text() if it's not JSON
+  // console.log(data);
+  console.log(response.statusText);
 }
 
 bot.on("ready", () => {
