@@ -69,15 +69,15 @@ const command: Command = {
     // }
 
     // ----- process options from the command
-    const pin = interaction.options.getString("pin");
-    console.log("PIN ", pin);
-    if (!pin) {
-      console.log("Need to specify a PIN");
-      await interaction.reply(
-        "Need to specify a PIN from your Muse Copilot Game Card",
-      );
-      return;
-    }
+    // const pin = interaction.options.getString("pin");
+    // console.log("PIN ", pin);
+    // if (!pin) {
+    //   console.log("Need to specify a PIN");
+    //   await interaction.reply(
+    //     "Need to specify a PIN from your Muse Copilot Game Card",
+    //   );
+    //   return;
+    // }
 
     const conn = joinVoiceChannel({
       channelId: channel.id,
