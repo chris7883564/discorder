@@ -68,6 +68,16 @@ const command: Command = {
     // 	return;
     // }
 
+    // TODO: if there's an existing session, close it first
+    const existing_recorder = tasks.get(interaction.member.id);
+    if (existing_recorder) {
+      console.log("Please stop the existing recording first with /stop");
+      await interaction.reply(
+        "Please stop the existing recording first with /stop",
+      );
+      return;
+    }
+
     // ----- process options from the command
     const pin = interaction.options.getString("pin");
     console.log("PIN ", pin);
@@ -79,16 +89,7 @@ const command: Command = {
       return;
     }
 
-    // TODO: if there's an existing session, close it first
-    const existing_recorder = tasks.get(interaction.member.id);
-    if (existing_recorder) {
-      console.log("Please stop the existing recording first with /stop");
-      await interaction.reply(
-        "Please stop the existing recording first with /stop",
-      );
-      return;
-    }
-
+    // ---- ok now we can start the new voice channel recording
     const conn = joinVoiceChannel({
       channelId: channel.id,
       guildId: channel.guild.id,
@@ -100,7 +101,7 @@ const command: Command = {
 
     // connect to muse convex database and create a new session
     const payload = JSON.stringify({
-      sessionPIN: "1234",
+      sessionPIN: pin,
       discordserverId: channel.guild.id,
       description: "from discorder",
     });
