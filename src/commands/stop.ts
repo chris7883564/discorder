@@ -1,4 +1,4 @@
-import { remove } from "../recorder";
+import { remove, tasks } from "../recorder";
 import type { Command } from "./types";
 import { showDirectoryStructure } from "./utils";
 
@@ -23,6 +23,24 @@ const command: Command = {
       return;
     }
 
+    // connect to muse convex database and create a new session
+    const recorder = tasks.get(interaction.member.id);
+    const payload = JSON.stringify({ session_id: recorder?.session_id });
+    console.log(payload);
+    const response = await fetch(
+      "https://trustworthy-kudu-486.convex.site/discord/stop",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: payload,
+      },
+    );
+    console.log(response.status, response.statusText);
+    if (!response.ok) {
+      throw new Error("Failed to stop session with Muse service");
+    }
+
+    // ----- stop interaction
     const removed = remove(interaction.member);
     if (removed) {
       await interaction.reply("Recording has stopped.");
