@@ -74,7 +74,7 @@ export async function uploadFileToConvex(
 ) {
   try {
     // upload the file to convex
-    const uploadURL = new URL(`${convexSiteUrl}/upload`);
+    const uploadURL = new URL(`${convexSiteUrl}/discord/upload`);
     const file = await fs.readFileSync(filename);
 
     // set all the parameters, eg. talkerID, guild etc.
