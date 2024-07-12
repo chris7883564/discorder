@@ -89,22 +89,24 @@ const command: Command = {
     });
 
     // connect to muse convex database and create a new session
+    const payload = JSON.stringify({
+      sessionPIN: "1234",
+      discordserverId: channel.guild.id,
+      description: "test",
+    });
+    console.log(payload);
     const response = await fetch(
       "https://trustworthy-kudu-486.convex.site/discord/start",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sessionPIN: "1234",
-          discordserverId: channel.guild.id,
-          description: "test",
-        }),
+        body: payload,
       },
     );
+    console.log(response.status, response.statusText);
     if (!response.ok) {
       throw new Error("Failed to start session with Muse service");
     }
-    console.log(response.json);
 
     // start the recorder object
     // save the session_id
