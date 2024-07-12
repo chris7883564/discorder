@@ -119,9 +119,14 @@ const command: Command = {
       throw new Error("Failed to start session with Muse service");
     }
 
+    const jsonResponse = (await response.json()) as { session_id: string };
+    const session_id = jsonResponse.session_id;
+    console.log("Session ID:", session_id);
+
     // start the recorder object
     // save the session_id
-    const recorder = add(conn, channel, interaction.member);
+
+    const recorder = add(session_id, conn, channel, interaction.member);
 
     // log file structure for debugging
     // showDirectoryStructure()

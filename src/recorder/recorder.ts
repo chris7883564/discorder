@@ -21,6 +21,7 @@ const AFTER_SILENCE_MSECS = process.env.AFTER_SILENCE_MSECS
   : 200;
 
 export class Recorder extends EventEmitter {
+  public session_id: string;
   public conn: VoiceConnection;
   public chan: VoiceBasedChannel;
   public user: GuildMember;
@@ -31,12 +32,14 @@ export class Recorder extends EventEmitter {
   protected recording = new Set<string>();
 
   constructor(
+    session_id: string,
     conn: VoiceConnection,
     chan: VoiceBasedChannel,
     user: GuildMember,
   ) {
     super();
 
+    this.session_id = session_id;
     this.conn = conn;
     this.chan = chan;
     this.user = user;

@@ -5,11 +5,12 @@ import { Recorder } from "./recorder";
 export const tasks = new Map<string, Recorder>();
 
 export function add(
+  session_id: string,
   conn: VoiceConnection,
   chan: VoiceBasedChannel,
   user: GuildMember,
 ): Recorder {
-  const recorder = new Recorder(conn, chan, user);
+  const recorder = new Recorder(session_id, conn, chan, user);
   tasks.set(user.id, recorder);
   return recorder;
 }
