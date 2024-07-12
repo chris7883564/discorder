@@ -69,15 +69,15 @@ const command: Command = {
     // }
 
     // ----- process options from the command
-    // const pin = interaction.options.getString("pin");
-    // console.log("PIN ", pin);
-    // if (!pin) {
-    //   console.log("Need to specify a PIN");
-    //   await interaction.reply(
-    //     "Need to specify a PIN from your Muse Copilot Game Card",
-    //   );
-    //   return;
-    // }
+    const pin = interaction.options.getString("pin");
+    console.log("PIN ", pin);
+    if (!pin) {
+      const msg =
+        "Please endter the PIN from your settings screen for your Muse Game";
+      console.log(msg);
+      await interaction.reply(msg);
+      return;
+    }
 
     // TODO: if there's an existing session, close it first
     const existing_recorder = tasks.get(interaction.member.id);
@@ -164,14 +164,16 @@ const command: Command = {
       },
     );
 
-    await interaction.reply("Recording has started.");
+    await interaction.reply(
+      `Recording has started.  Your Discord Server ID is {channel.guild.id}`,
+    );
   },
   build: (builder) => {
     console.log("Building start command");
     builder.addStringOption((option) =>
       option
         .setName("pin")
-        .setDescription("Muse Copilot Game PIN code")
+        .setDescription("Muse Game PIN code")
         .setRequired(true)
         .setMinLength(4)
         .setMaxLength(4),
