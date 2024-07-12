@@ -1,7 +1,7 @@
 import debug from "debug";
 import fs from "node:fs";
 import { joinVoiceChannel } from "@discordjs/voice";
-import { add } from "../recorder";
+import { add, tasks } from "../recorder";
 import { uploadFileToConvex } from "../recorder/convexuploader";
 import type { Command } from "./types";
 import { showDirectoryStructure } from "./utils";
@@ -79,6 +79,16 @@ const command: Command = {
     //   return;
     // }
 
+    // TODO: if there's an existing session, close it first
+    const existing_recorder = tasks.get(interaction.member.id);
+    if (existing_recorder) {
+      console.log("Please stop the existing recording first with /stop");
+      await interaction.reply(
+        "Please stop the existing recording first with /stop",
+      );
+      return;
+    }
+
     const conn = joinVoiceChannel({
       channelId: channel.id,
       guildId: channel.guild.id,
@@ -92,7 +102,7 @@ const command: Command = {
     const payload = JSON.stringify({
       sessionPIN: "1234",
       discordserverId: channel.guild.id,
-      description: "test",
+      description: "from discorder",
     });
     console.log(payload);
     const response = await fetch(
