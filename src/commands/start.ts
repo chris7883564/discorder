@@ -177,7 +177,7 @@ const command: Command = {
         .setDescription("Muse Game PIN code")
         .setRequired(true)
         .setMinLength(4)
-        .setMaxLength(4),
+        .setMaxLength(12),
     );
     return builder;
   },
