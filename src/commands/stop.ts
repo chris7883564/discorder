@@ -4,7 +4,7 @@ import { showDirectoryStructure } from "./utils";
 
 const command: Command = {
   name: "stop",
-  description: "Stop the recorder you started",
+  description: "Stop the Muse recorder you started",
   action: async (interaction) => {
     if (!interaction.isCommand()) {
       return;
@@ -37,7 +37,10 @@ const command: Command = {
     );
     console.log(response.status, response.statusText);
     if (!response.ok) {
-      throw new Error("Failed to stop session with Muse service");
+      const msg = `Failed to stop the recording session with Muse service. ${response.status} ${response.statusText}`;
+      await interaction.reply(msg);
+      // throw new Error("Failed to stop session with Muse service");
+      return;
     }
 
     // ----- stop interaction
