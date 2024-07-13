@@ -116,7 +116,10 @@ const command: Command = {
     );
     console.log(response.status, response.statusText);
     if (!response.ok) {
-      throw new Error("Failed to start session with Muse service");
+      const msg = `Failed to start the recording session with Muse. ${response.status} ${response.statusText}`;
+      await interaction.reply(msg);
+      // throw new Error("Failed to stop session with Muse service");
+      return;
     }
 
     const jsonResponse = (await response.json()) as { session_id: string };
@@ -171,7 +174,7 @@ const command: Command = {
     );
 
     await interaction.reply(
-      `Recording has started.  Your Discord Server ID is {channel.guild.id}`,
+      `Recording has started.  Your Discord Server ID is ${channel.guild.id}`,
     );
   },
   build: (builder) => {
