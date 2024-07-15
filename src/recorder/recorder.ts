@@ -30,6 +30,9 @@ export class Recorder extends EventEmitter {
   protected dir: string;
   protected interval: NodeJS.Timeout | null = null;
   protected recording = new Set<string>();
+  public on(event: string, listener: (...args: any[]) => void): this {
+    return this;
+  }
 
   constructor(
     session_id: string,
