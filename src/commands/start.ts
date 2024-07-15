@@ -142,6 +142,7 @@ const command: Command = {
         wav_filename: string,
         user_id: string,
         time_offset: number,
+        session_id: string,
         guild_id: string,
         channel_id: string,
         metadata: string,
@@ -154,6 +155,7 @@ const command: Command = {
         uploadFileToConvex(
           wav_filename,
           username,
+          session_id,
           user_id,
           time_offset,
           guild_id,

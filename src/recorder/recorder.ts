@@ -149,6 +149,7 @@ export class Recorder extends EventEmitter {
           fp,
           user,
           time_offset,
+          this.session_id,
           this.chan.guild.id,
           this.chan.id,
           metadata,
