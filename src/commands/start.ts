@@ -103,7 +103,7 @@ const command: Command = {
     const payload = JSON.stringify({
       sessionPIN: pin,
       discordserverId: channel.guild.id,
-      description: "from discorder",
+      description: channel.guild.name,
     });
     console.log(payload);
     const response = await fetch(
