@@ -184,7 +184,9 @@ const command: Command = {
     builder.addStringOption((option) =>
       option
         .setName("pin")
-        .setDescription("Muse Game Discord PIN code eg. A-013633")
+        .setDescription(
+          "Enter the Discord PIN code for your Muse Game eg. A-013633",
+        )
         .setRequired(true)
         .setMinLength(8)
         .setMaxLength(8),
