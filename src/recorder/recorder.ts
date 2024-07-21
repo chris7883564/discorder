@@ -8,6 +8,7 @@ import path from "node:path";
 import prism from "prism-media";
 import wav from "wav";
 import { RECORDING_DIR } from "../config";
+import { stopMuseSession } from "@/commands/stop";
 
 // import { uploadFileToConvex } from "./convexuploader";
 
@@ -173,10 +174,12 @@ export class Recorder extends EventEmitter {
     // check once per second for connection destroyed status
     this.interval = setInterval(() => {
       if (this.conn.state.status === "destroyed") {
+        console.log("connection destroyed");
         this.stop();
       }
       const user = this.chan.members.get(this.user.id);
       if (!user) {
+        console.log("no more members in the channel");
         this.stop();
       }
     }, 1000);
@@ -187,12 +190,17 @@ export class Recorder extends EventEmitter {
     if (this.stopped) {
       return;
     }
+    console.log("stopping...");
     this.stopped = true;
 
     this.conn.destroy();
     if (this.interval) {
       clearInterval(this.interval);
     }
+
+    // ----- stop muse session in the convex database
+    stopMuseSession(this.session_id);
+    console.log("stopped.");
   }
 
   //--- old gather function, not used

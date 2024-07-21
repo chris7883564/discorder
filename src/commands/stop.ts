@@ -1,20 +1,50 @@
+import { sign } from "node:crypto";
 import { remove, tasks } from "../recorder";
 import type { Command } from "./types";
 import { showDirectoryStructure } from "./utils";
 
+//---------------------------------------------------------------------
+// returns string if there's an error
+// returns null if no error
+//---------------------------------------------------------------------
+export const stopMuseSession = async (
+  interaction_member_id: any,
+): Promise<string | null> => {
+  if (!interaction_member_id) return null;
+
+  // connect to muse convex database and create a new session
+  const recorder = tasks.get(interaction_member_id);
+  const payload = JSON.stringify({ session_id: recorder?.session_id });
+  console.log(payload);
+  const response = await fetch(
+    "https://trustworthy-kudu-486.convex.site/discord/stop",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: payload,
+    },
+  );
+  console.log(response.status, response.statusText);
+  if (!response.ok) {
+    const msg = `Failed to stop the recording session with Muse service. ${response.status} ${response.statusText}`;
+    console.log(msg);
+    // await interaction.reply(msg);
+    // throw new Error("Failed to stop session with Muse service");
+    return msg;
+  }
+  return null;
+};
+
+//---------------------------------------------------------------------
 const command: Command = {
   name: "stop",
   description: "Stop the Muse recorder you started",
   action: async (interaction) => {
-    if (!interaction.isCommand()) {
-      return;
-    }
-
-    if (!interaction.isChatInputCommand()) {
-      return;
-    }
-
-    if (!interaction.member) {
+    if (
+      !interaction.isCommand() ||
+      !interaction.isChatInputCommand() ||
+      !interaction.member
+    ) {
       return;
     }
 
@@ -23,23 +53,10 @@ const command: Command = {
       return;
     }
 
-    // connect to muse convex database and create a new session
-    const recorder = tasks.get(interaction.member.id);
-    const payload = JSON.stringify({ session_id: recorder?.session_id });
-    console.log(payload);
-    const response = await fetch(
-      "https://trustworthy-kudu-486.convex.site/discord/stop",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: payload,
-      },
-    );
-    console.log(response.status, response.statusText);
-    if (!response.ok) {
-      const msg = `Failed to stop the recording session with Muse service. ${response.status} ${response.statusText}`;
-      await interaction.reply(msg);
-      // throw new Error("Failed to stop session with Muse service");
+    // ----- stop muse session in the convex database
+    const errormsg = await stopMuseSession(interaction.member.id);
+    if (errormsg) {
+      await interaction.reply(errormsg);
       return;
     }
 
