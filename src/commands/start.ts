@@ -82,9 +82,10 @@ const command: Command = {
     const gamePIN = interaction.options.getString("gamepin");
     console.log("gamePIN ", gamePIN);
     if (!gamePIN) {
-      const msg = `The 6-digit PIN code for your Muse Game is wrong`;
+      const msg = `Invalid game PIN. Please enter a 6-digit game PIN code for your Muse Game eg. 544232`;
       console.log(msg);
       await interaction.reply(msg);
+      return;
     }
 
     // ---- ok now we can start the new voice channel recording
