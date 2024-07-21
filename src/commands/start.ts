@@ -182,7 +182,7 @@ const command: Command = {
     console.log("Building start command");
     builder.addStringOption((option) =>
       option
-        .setName("Pairing Code")
+        .setName("paircode")
         .setDescription(
           "Enter the 6-digit pairing code for your Muse Game eg. 544232",
         )
