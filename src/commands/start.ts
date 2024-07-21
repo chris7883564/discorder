@@ -79,11 +79,10 @@ const command: Command = {
     }
 
     // ----- process options from the command
-    const pin = interaction.options.getString("pin");
-    console.log("PIN ", pin);
-    if (!pin) {
-      const msg =
-        "Please endter the PIN from your settings screen for your Muse Game";
+    const paircode = interaction.options.getString("paircode");
+    console.log("PAIR CODE ", paircode);
+    if (!paircode) {
+      const msg = "Please endter the 6-digit pairing code from your Muse Game";
       console.log(msg);
       await interaction.reply(msg);
       return;
@@ -101,7 +100,7 @@ const command: Command = {
 
     // connect to muse convex database and create a new session
     const payload = JSON.stringify({
-      sessionPIN: pin,
+      sessionPIN: paircode,
       discordserverId: channel.guild.id,
       description: channel.guild.name,
     });
@@ -183,13 +182,13 @@ const command: Command = {
     console.log("Building start command");
     builder.addStringOption((option) =>
       option
-        .setName("pin")
+        .setName("Pairing Code")
         .setDescription(
-          "Enter the Discord PIN code for your Muse Game eg. A-013633",
+          "Enter the 6-digit pairing code for your Muse Game eg. 544232",
         )
         .setRequired(true)
-        .setMinLength(8)
-        .setMaxLength(8),
+        .setMinLength(6)
+        .setMaxLength(6),
     );
     return builder;
   },
