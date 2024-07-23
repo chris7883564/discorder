@@ -40,6 +40,32 @@ client.on("ready", () => {
 });
 
 //---------------------------------------------------------------------
+client.on("guildDelete", async (guild) => {
+  console.log(`Bot deleted from guild: ${guild.name} (id: ${guild.id}).`);
+  try {
+    const serverUrl =
+      "https://trustworthy-kudu-486.convex.site/discord/unlinkguild";
+    const data = {
+      guild_id: guild.id,
+      guild_name: guild.name,
+      guild_systemChannelId: guild.systemChannelId,
+      guild_ownerId: guild.ownerId,
+    };
+    const response = await fetch(serverUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      throw new Error(response.statusText);
+    }
+    console.log(response.statusText);
+  } catch (error) {
+    console.error("guildDelete error: ", error);
+  }
+});
+
+//---------------------------------------------------------------------
 client.on("guildCreate", async (guild) => {
   console.log(`Bot added to guild: ${guild.name} (id: ${guild.id}).`);
 
