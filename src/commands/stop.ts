@@ -52,6 +52,8 @@ const command: Command = {
   name: "stop",
   description: "Stop the Muse recorder you started",
   action: async (interaction) => {
+    logger.info("command received: stop");
+
     if (
       !interaction.isCommand() ||
       !interaction.isChatInputCommand() ||

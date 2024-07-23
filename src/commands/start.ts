@@ -14,15 +14,13 @@ const command: Command = {
   name: "start",
   description: "Start the recorder in the current voice channel",
   action: async (interaction) => {
-    if (!interaction.isCommand()) {
-      return;
-    }
+    logger.info("command received: start");
 
-    if (!interaction.isChatInputCommand()) {
-      return;
-    }
-
-    if (!interaction.member) {
+    if (
+      !interaction.isCommand() ||
+      !interaction.isChatInputCommand() ||
+      !interaction.member
+    ) {
       return;
     }
 
@@ -33,13 +31,17 @@ const command: Command = {
     // }
 
     if (!("voice" in interaction.member)) {
-      await interaction.reply("You need to join a voice channel first!");
+      const msg = "You need to join a voice channel first!";
+      logger.error(msg);
+      await interaction.reply(msg);
       return;
     }
 
     const { channel } = interaction.member.voice;
     if (!channel) {
-      await interaction.reply("You need to join a voice channel first!");
+      const msg = "You need to join a voice channel first!";
+      logger.error(msg);
+      await interaction.reply(msg);
       return;
     }
 
@@ -49,9 +51,10 @@ const command: Command = {
       !permissions.has("Speak") ||
       !permissions.has("UseVAD")
     ) {
-      await interaction.reply(
-        "I need the permissions to join and speak in your voice channel!",
-      );
+      const msg =
+        "I need the permissions to join and speak in your voice channel!";
+      logger.error(msg);
+      await interaction.reply(msg);
       return;
     }
 
@@ -70,10 +73,9 @@ const command: Command = {
     // TODO: if there's an existing session, close it first
     const existing_recorder = tasks.get(interaction.member.id);
     if (existing_recorder) {
-      logger.warn("Please stop the existing recording first with /stop");
-      await interaction.reply(
-        "Please stop the existing recording first with /stop",
-      );
+      const msg = "Please stop the existing recording first with /stop";
+      logger.warn(msg);
+      await interaction.reply(msg);
       return;
     }
 

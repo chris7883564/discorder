@@ -8,8 +8,13 @@ class Logger {
   }
 
   info(...messages: any[]) {
+    const log_record = {
+      time: new Date().toISOString(),
+      level: "info",
+      message: `${this.baseNamespace}:info ` + messages.join(" "),
+    };
     const logInfo = debug(`${this.baseNamespace}:info`);
-    logInfo(messages);
+    logInfo(JSON.stringify(log_record));
   }
 
   warn(...messages: any[]) {
