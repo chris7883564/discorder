@@ -40,23 +40,28 @@ client.on("ready", () => {
 //---------------------------------------------------------------------
 client.on("guildCreate", async (guild) => {
   console.log(`Bot added to guild: ${guild.name} (id: ${guild.id}).`);
-  console.log(guild);
-  // try {
-  //   const serverUrl = 'https://your-app-server.com/api/bot-added';
-  //   const data = {
-  //     guild_id: guild.id,
-  //     guild_name: guild.name,
-  //   };
 
-  //   const response = await axios.post(serverUrl, data);
-  //   if (response.status === 200) {
-  //     console.log('Successfully notified app server host.');
-  //   } else {
-  //     console.error('Failed to notify app server host:', response.statusText);
-  //   }
-  // } catch (error) {
-  //   console.error('Error notifying app server host:', error);
-  // }
+  try {
+    const serverUrl =
+      "https://trustworthy-kudu-486.convex.site/discord/linkguild";
+    const data = {
+      guild_id: guild.id,
+      guild_name: guild.name,
+      guild_systemChannelId: guild.systemChannelId,
+      guild_ownerId: guild.ownerId,
+    };
+    const response = await fetch(serverUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      throw new Error(response.statusText);
+    }
+    console.log(response.statusText);
+  } catch (error) {
+    console.error("guildCreate error: ", error);
+  }
 });
 
 //---------------------------------------------------------------------
