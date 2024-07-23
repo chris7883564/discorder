@@ -20,7 +20,7 @@ async function postLinkDiscorder(username: string) {
     },
   );
   if (!response.ok) {
-    throw new Error("Network response was not ok");
+    throw new Error(response.statusText);
   }
 
   // Assuming you want to do something with the response
