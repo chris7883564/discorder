@@ -8,23 +8,15 @@ class Logger {
   }
 
   info(...messages: any[]) {
-    const log_record = {
-      time: new Date().toISOString(),
-      level: "info",
-      message: `${this.baseNamespace}:info ` + messages.join(" "),
-    };
-    console.log(`${this.baseNamespace}:info` + messages);
-    console.log(log_record);
+    console.log(`${this.baseNamespace}:info ` + messages);
   }
 
   warn(...messages: any[]) {
-    const logWarn = debug(`${this.baseNamespace}:warn`);
-    logWarn(messages);
+    console.log(`${this.baseNamespace}:warn ` + messages);
   }
 
   error(...messages: any[]) {
-    const logError = debug(`${this.baseNamespace}:error`);
-    logError(messages);
+    debug(`${this.baseNamespace}:error ` + messages);
   }
 }
 
