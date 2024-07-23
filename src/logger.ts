@@ -12,7 +12,7 @@ class Logger {
   }
 
   warn(...messages: any[]) {
-    console.log(`${this.baseNamespace}:warn ` + messages);
+    console.warn(`${this.baseNamespace}:warn ` + messages);
   }
 
   error(...messages: any[]) {
