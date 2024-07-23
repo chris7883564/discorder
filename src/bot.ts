@@ -7,7 +7,9 @@ import Logger from "@/logger";
 const logger = new Logger("bot");
 
 //---------------------------------------------------------------------
-export const client = new Client({ intents: ["GuildVoiceStates", "Guilds"] });
+export const client = new Client({
+  intents: ["GuildVoiceStates", "Guilds", "GuildMembers"],
+});
 
 //---------------------------------------------------------------------
 async function postLinkDiscorder(username: string) {
@@ -40,6 +42,13 @@ client.on("ready", () => {
 //---------------------------------------------------------------------
 client.on("guildCreate", async (guild) => {
   console.log(`Bot added to guild: ${guild.name} (id: ${guild.id}).`);
+
+  try {
+    const user = await client.users.fetch(guild.ownerId);
+    console.log(`Guild Owner's username: ${user.username}`);
+  } catch (error) {
+    console.error("Error fetching user:", error);
+  }
 
   try {
     const serverUrl =
