@@ -13,8 +13,8 @@ class Logger {
       level: "info",
       message: `${this.baseNamespace}:info ` + messages.join(" "),
     };
-    const logInfo = debug(`${this.baseNamespace}:info`);
-    logInfo(JSON.stringify(log_record));
+    console.log(`${this.baseNamespace}:info` + messages);
+    console.log(log_record);
   }
 
   warn(...messages: any[]) {
