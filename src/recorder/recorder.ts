@@ -193,7 +193,7 @@ export class Recorder extends EventEmitter {
     if (this.stopped) {
       return;
     }
-    console.log("stopping...");
+    console.log("stopping muse session...", this.session_id);
     this.stopped = true;
 
     this.conn.destroy();
@@ -202,7 +202,6 @@ export class Recorder extends EventEmitter {
     }
 
     // ----- stop muse session in the convex database
-    console.log("stopping muse session...", this.session_id);
     stopMuseSession(this.session_id);
     console.log("stopped.");
   }

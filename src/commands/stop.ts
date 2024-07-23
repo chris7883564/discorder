@@ -12,14 +12,19 @@ export const stopMuseSession = async (
 ): Promise<string | null> => {
   if (!interaction_member_id) return null;
 
-  // connect to muse convex database and create a new session
+  // if this is not a valid user, it's already stopped
   const recorder = tasks.get(interaction_member_id);
-  if (!recorder) {
-    console.log("No recorder found for this user");
-  }
+  if (!recorder) return null;
+
+  console.log("stopMuseSession: stopping recorder for ", interaction_member_id);
+  console.log(
+    "username = ",
+    interaction_member_id.username,
+    "guild_id = ",
+    recorder?.user.guild.id,
+  );
 
   const payload = JSON.stringify({ session_id: recorder?.session_id });
-  console.log(recorder?.user, interaction_member_id);
   const response = await fetch(
     "https://trustworthy-kudu-486.convex.site/discord/stop",
     {
