@@ -4,7 +4,6 @@ import { joinVoiceChannel } from "@discordjs/voice";
 import { add, tasks } from "../recorder";
 import { uploadFileToConvex } from "../recorder/convexuploader";
 import type { Command } from "./types";
-import { showDirectoryStructure } from "./utils";
 
 //---------------------------------------------------------------------
 import Logger from "@/logger";
@@ -164,12 +163,12 @@ const command: Command = {
             // delete the file after upload, even if the upload fails (lost forever)
             fs.unlink(wav_filename, (err) => {
               if (err) {
-                log("Failed to delete", wav_filename, err);
+                logger.error("Failed to delete", wav_filename, err);
               }
             });
           })
           .catch((e) => {
-            log("Failed to upload", wav_filename, e);
+            logger.error("Failed to upload", wav_filename, e);
           });
       },
     );
