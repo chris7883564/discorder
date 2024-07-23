@@ -167,6 +167,7 @@ export class Recorder extends EventEmitter {
       }
 
       if (cur.channelId === null) {
+        console.log("voiceStateUpdate calling stop...");
         this.stop();
       }
     });
@@ -175,11 +176,13 @@ export class Recorder extends EventEmitter {
     this.interval = setInterval(() => {
       if (this.conn.state.status === "destroyed") {
         console.log("connection destroyed");
+        console.log("watchdog calling stop...");
         this.stop();
       }
       const user = this.chan.members.get(this.user.id);
       if (!user) {
         console.log("no more members in the channel");
+        console.log("watchdog calling stop...");
         this.stop();
       }
     }, 1000);
@@ -199,6 +202,7 @@ export class Recorder extends EventEmitter {
     }
 
     // ----- stop muse session in the convex database
+    console.log("stopping muse session...", this.session_id);
     stopMuseSession(this.session_id);
     console.log("stopped.");
   }
