@@ -1,11 +1,10 @@
 import { sign } from "node:crypto";
 import { remove, tasks } from "../recorder";
 import type { Command } from "./types";
-import { showDirectoryStructure } from "./utils";
 
 //---------------------------------------------------------------------
 import Logger from "@/logger";
-const logger = new Logger("commands/stop");
+const logger = new Logger("commands");
 
 //---------------------------------------------------------------------
 // returns string if there's an error

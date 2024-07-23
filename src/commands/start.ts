@@ -7,7 +7,7 @@ import type { Command } from "./types";
 
 //---------------------------------------------------------------------
 import Logger from "@/logger";
-const logger = new Logger("commands/start");
+const logger = new Logger("commands");
 
 //---------------------------------------------------------------------
 const command: Command = {
