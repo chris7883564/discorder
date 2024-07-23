@@ -1,6 +1,5 @@
 import type { VoiceConnection } from "@discordjs/voice";
 import { EndBehaviorType } from "@discordjs/voice";
-import debug from "debug";
 import type { Guild, GuildMember, VoiceBasedChannel } from "discord.js";
 import { EventEmitter } from "node:events";
 import fs from "node:fs";
@@ -12,8 +11,8 @@ import { stopMuseSession } from "@/commands/stop";
 
 // import { uploadFileToConvex } from "./convexuploader";
 
-const log = debug("recorder");
-log.enabled = true;
+import Logger from "@/logger";
+const logger = new Logger("recorder");
 
 const RATE = 16000;
 const CHANNELS = 1;
@@ -70,7 +69,7 @@ export class Recorder extends EventEmitter {
   //---------------------------------------------------------------------
   protected setup(guild_id: string) {
     //--- event handler for connection errors
-    this.conn.on("error", log);
+    this.conn.on("error", logger.error);
 
     //--- event handler for when speaking starts
     this.conn.receiver.speaking.on("start", async (user) => {
@@ -89,7 +88,7 @@ export class Recorder extends EventEmitter {
         return;
       }
       this.recording.add(user);
-      log("speaking start", user);
+      // logger.info("speaking start", user);
       this.emit("speaking", user);
 
       const audio = this.conn.receiver.subscribe(user, {
@@ -115,7 +114,7 @@ export class Recorder extends EventEmitter {
 
       //--- event handler for when speaking ends
       audio.once("end", () => {
-        log("speaking end", user);
+        // logger.info("speaking end", user);
         this.recording.delete(user);
       });
 
@@ -152,7 +151,7 @@ export class Recorder extends EventEmitter {
           this.chan.id,
           metadata,
         );
-        log("talk burst emitted", user);
+        logger.info(user, "talk burst emitted");
       });
     });
 
@@ -167,7 +166,7 @@ export class Recorder extends EventEmitter {
       }
 
       if (cur.channelId === null) {
-        console.log("voiceStateUpdate calling stop...");
+        logger.info("voiceStateUpdate calling stop...");
         this.stop();
       }
     });
@@ -175,14 +174,14 @@ export class Recorder extends EventEmitter {
     // check once per second for connection destroyed status
     this.interval = setInterval(() => {
       if (this.conn.state.status === "destroyed") {
-        console.log("connection destroyed");
-        console.log("watchdog calling stop...");
+        logger.info("connection destroyed");
+        logger.info("watchdog calling stop...");
         this.stop();
       }
       const user = this.chan.members.get(this.user.id);
       if (!user) {
-        console.log("no more members in the channel");
-        console.log("watchdog calling stop...");
+        logger.info("no more members in the channel");
+        logger.info("watchdog calling stop...");
         this.stop();
       }
     }, 1000);
@@ -193,7 +192,7 @@ export class Recorder extends EventEmitter {
     if (this.stopped) {
       return;
     }
-    console.log("stopping muse session...", this.session_id);
+    logger.info("stopping muse session...", this.session_id);
     this.stopped = true;
 
     this.conn.destroy();
@@ -203,7 +202,7 @@ export class Recorder extends EventEmitter {
 
     // ----- stop muse session in the convex database
     stopMuseSession(this.session_id);
-    console.log("stopped.");
+    logger.info("stopped.");
   }
 
   //--- old gather function, not used

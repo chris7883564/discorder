@@ -4,6 +4,10 @@ import type { Command } from "./types";
 import { showDirectoryStructure } from "./utils";
 
 //---------------------------------------------------------------------
+import Logger from "@/logger";
+const logger = new Logger("commands/stop");
+
+//---------------------------------------------------------------------
 // returns string if there's an error
 // returns null if no error
 //---------------------------------------------------------------------
@@ -16,8 +20,8 @@ export const stopMuseSession = async (
   const recorder = tasks.get(interaction_member_id);
   if (!recorder) return null;
 
-  console.log("stopMuseSession: stopping recorder for ", interaction_member_id);
-  console.log(
+  logger.info("stopMuseSession: stopping recorder for ", interaction_member_id);
+  logger.info(
     "username = ",
     interaction_member_id.username,
     "guild_id = ",
@@ -33,10 +37,10 @@ export const stopMuseSession = async (
       body: payload,
     },
   );
-  console.log(response.status, response.statusText);
+  logger.info(response.status, response.statusText);
   if (!response.ok) {
     const msg = `Failed to stop the recording session with Muse service. ${response.status} ${response.statusText}`;
-    console.log(msg);
+    logger.error(msg);
     // await interaction.reply(msg);
     // throw new Error("Failed to stop session with Muse service");
     return msg;
@@ -96,11 +100,3 @@ const command: Command = {
 };
 
 export default command;
-
-function ms_to_time(ms: number) {
-  const seconds = Math.floor((ms / 1000) % 60);
-  const minutes = Math.floor((ms / (1000 * 60)) % 60);
-  const hours = Math.floor((ms / (1000 * 60 * 60)) % 24);
-
-  return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
-}

@@ -7,8 +7,8 @@ import type { Command } from "./types";
 import { showDirectoryStructure } from "./utils";
 
 //---------------------------------------------------------------------
-const log = debug("bot:commands");
-log.enabled = true;
+import Logger from "@/logger";
+const logger = new Logger("commands/start");
 
 //---------------------------------------------------------------------
 const command: Command = {
@@ -61,9 +61,9 @@ const command: Command = {
     // const language = interaction.options.getString("language");
     // const prompt = interaction.options.getString("prompt");
     // const live_chan = interaction.options.getChannel("channel");
-    // console.log(live_chan, language, prompt);
+    // logger.info(live_chan, language, prompt);
     // if (!live_chan || !("send" in live_chan)) {
-    // 	console.log("Invalid live channel!");
+    // 	logger.info("Invalid live channel!");
     // 	await interaction.reply("Invalid live channel!");
     // 	return;
     // }
@@ -71,7 +71,7 @@ const command: Command = {
     // TODO: if there's an existing session, close it first
     const existing_recorder = tasks.get(interaction.member.id);
     if (existing_recorder) {
-      console.log("Please stop the existing recording first with /stop");
+      logger.warn("Please stop the existing recording first with /stop");
       await interaction.reply(
         "Please stop the existing recording first with /stop",
       );
@@ -80,10 +80,10 @@ const command: Command = {
 
     // ----- process options from the command
     const gamePIN = interaction.options.getString("gamepin");
-    console.log("gamePIN ", gamePIN);
+    logger.info("gamePIN ", gamePIN);
     if (!gamePIN) {
       const msg = `Invalid game PIN. Please enter a 6-digit game PIN code for your Muse Game eg. 544232`;
-      console.log(msg);
+      console.error(msg);
       await interaction.reply(msg);
       return;
     }
@@ -104,7 +104,7 @@ const command: Command = {
       discordserverId: channel.guild.id,
       description: channel.guild.name,
     });
-    console.log(payload);
+    logger.info(payload);
     const response = await fetch(
       "https://trustworthy-kudu-486.convex.site/discord/start",
       {
@@ -113,7 +113,7 @@ const command: Command = {
         body: payload,
       },
     );
-    console.log(response.status, response.statusText);
+    logger.info(response.status, response.statusText);
     if (!response.ok) {
       const msg = `Failed to start the recording session with Muse. ${response.status} ${response.statusText}`;
       await interaction.reply(msg);
@@ -123,7 +123,7 @@ const command: Command = {
 
     const jsonResponse = (await response.json()) as { session_id: string };
     const session_id = jsonResponse.session_id;
-    console.log("Session ID:", session_id);
+    logger.info("Session ID:", session_id);
 
     // start the recorder object
     // save the session_id
@@ -179,7 +179,7 @@ const command: Command = {
     );
   },
   build: (builder) => {
-    console.log("Building start command");
+    logger.info("Building start command");
     builder.addStringOption((option) =>
       option
         .setName("gamepin")
@@ -193,7 +193,7 @@ const command: Command = {
     return builder;
   },
   // build: (builder) => {
-  // 	console.log("Building start command");
+  // 	logger.info("Building start command");
   // 	builder
   // 		.addStringOption((option) =>
   // 			option

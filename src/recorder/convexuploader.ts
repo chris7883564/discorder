@@ -12,11 +12,11 @@
 // DEBUG=convexuploader:error node yourApp.js
 // DEBUG=convexuploader:warn,convexuploader:error node yourApp.js
 
-const logger = new Logger("convexuploader");
-
-import Logger from "@/logger";
 import "../envConfig";
 import fs from "node:fs";
+
+import Logger from "@/logger";
+const logger = new Logger("convexuploader");
 
 const convexSiteUrl = process.env.CONVEX_SITE_URL;
 logger.info("CONVEX_SITE_URL = " + convexSiteUrl);
