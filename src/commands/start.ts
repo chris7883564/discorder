@@ -103,7 +103,8 @@ const command: Command = {
     const payload = JSON.stringify({
       gamePIN: gamePIN,
       discordserverId: channel.guild.id,
-      description: channel.guild.name,
+      discordServerName: channel.guild.name,
+      interactionMemberId: interaction.member.id,
     });
     logger.info(payload);
     const response = await fetch(

@@ -45,18 +45,14 @@ client.on("guildDelete", async (guild) => {
   try {
     const serverUrl =
       "https://trustworthy-kudu-486.convex.site/discord/unlinkguild";
-    const data = {
-      guild_id: guild.id,
-      guild_name: guild.name,
-      guild_systemChannelId: guild.systemChannelId,
-      guild_ownerId: guild.ownerId,
-    };
+    const data = { guild_id: guild.id };
     const response = await fetch(serverUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
     if (!response.ok) {
+      console.error(response.status, response.statusText);
       throw new Error(response.statusText);
     }
     console.log(response.statusText);
@@ -105,14 +101,14 @@ client.on("interactionCreate", (interaction) => {
     return;
   }
   try {
-    logger.info("Command received: %s", interaction.commandName);
+    logger.info("Command received: " + interaction.commandName);
     const command = commands.find(
       (cmd) => cmd.name === interaction.commandName,
     );
     if (!command) {
       return;
     }
-    logger.info("Executing command: %s", command.name);
+    logger.info("Executing command: " + command.name);
     command.action(interaction);
   } catch (error) {
     console.error("interactionCreate error: ", error);
