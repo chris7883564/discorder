@@ -89,6 +89,7 @@ const command: Command = {
       return;
     }
 
+    // JOIN VOICE CHANNEL
     // ---- ok now we can start the new voice channel recording
     const conn = joinVoiceChannel({
       channelId: channel.id,
@@ -99,6 +100,7 @@ const command: Command = {
       debug: true,
     });
 
+    // START
     // connect to muse convex database and create a new session
     const payload = JSON.stringify({
       gamePIN: gamePIN,
