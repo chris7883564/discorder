@@ -178,9 +178,7 @@ const command: Command = {
       },
     );
 
-    await interaction.reply(
-      `Recording has started.  Your Discord Server ID is ${channel.guild.id}`,
-    );
+    await interaction.reply(`Recording has started.`);
   },
   build: (builder) => {
     logger.info("Building start command");
