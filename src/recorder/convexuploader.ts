@@ -12,14 +12,13 @@
 // DEBUG=convexuploader:error node yourApp.js
 // DEBUG=convexuploader:warn,convexuploader:error node yourApp.js
 
-import "../envConfig";
 import fs from "node:fs";
 
 import Logger from "@/logger";
+import { CONVEX_SITE_URL } from "@/config";
 const logger = new Logger("convexuploader");
 
-const convexSiteUrl = process.env.CONVEX_SITE_URL;
-logger.info("CONVEX_SITE_URL = " + convexSiteUrl);
+logger.disable();
 
 // --------------------------------------------------------------------------------------------------
 export async function uploadFileToConvex(
@@ -33,7 +32,7 @@ export async function uploadFileToConvex(
 ) {
   try {
     // upload the file to convex
-    const uploadURL = new URL(`${convexSiteUrl}/discord/upload`);
+    const uploadURL = new URL(`${CONVEX_SITE_URL}/discord/upload`);
     const file = await fs.readFileSync(filename);
 
     // set all the parameters, eg. talkerID, guild etc.

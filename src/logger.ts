@@ -2,17 +2,26 @@ import debug from "debug";
 
 class Logger {
   private baseNamespace: string;
+  private enabled: boolean = true;
 
   constructor(baseNamespace: string) {
     this.baseNamespace = baseNamespace;
   }
 
+  enable() {
+    this.enabled = true;
+  }
+
+  disable() {
+    this.enabled = false;
+  }
+
   info(...messages: any[]) {
-    console.log(`${this.baseNamespace}:info ` + messages);
+    if (this.enabled) console.log(`${this.baseNamespace}:info ` + messages);
   }
 
   warn(...messages: any[]) {
-    console.warn(`${this.baseNamespace}:warn ` + messages);
+    if (this.enabled) console.warn(`${this.baseNamespace}:warn ` + messages);
   }
 
   error(...messages: any[]) {

@@ -7,7 +7,10 @@ import type { Command } from "./types";
 
 //---------------------------------------------------------------------
 import Logger from "@/logger";
+import { CONVEX_SITE_URL } from "@/config";
 const logger = new Logger("commands");
+
+logger.disable();
 
 //---------------------------------------------------------------------
 const command: Command = {
@@ -109,14 +112,11 @@ const command: Command = {
       interactionMemberId: interaction.member.id,
     });
     logger.info(payload);
-    const response = await fetch(
-      "https://trustworthy-kudu-486.convex.site/discord/start",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: payload,
-      },
-    );
+    const response = await fetch(CONVEX_SITE_URL + "/discord/start", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: payload,
+    });
     logger.info(response.status, response.statusText);
     if (!response.ok) {
       const msg = `Failed to start the recording session with Muse. ${response.status} ${response.statusText}`;
@@ -196,55 +196,6 @@ const command: Command = {
     );
     return builder;
   },
-  // build: (builder) => {
-  // 	logger.info("Building start command");
-  // 	builder
-  // 		.addStringOption((option) =>
-  // 			option
-  // 				.setName("language")
-  // 				.setDescription("The language of the recording")
-  // 				.setRequired(false)
-  // 				.setChoices(
-  // 					...[
-  // 						{ name: "Auto", value: "auto" },
-  // 						{ name: "Chinese", value: "zh" },
-  // 						{ name: "Czech", value: "cs" },
-  // 						{ name: "Dutch", value: "nl" },
-  // 						{ name: "English", value: "en" },
-  // 						{ name: "French", value: "fr" },
-  // 						{ name: "German", value: "de" },
-  // 						{ name: "Indonesian", value: "id" },
-  // 						{ name: "Italian", value: "it" },
-  // 						{ name: "Japanese", value: "ja" },
-  // 						{ name: "Korean", value: "ko" },
-  // 						{ name: "Polish", value: "pl" },
-  // 						{ name: "Portuguese", value: "pt" },
-  // 						{ name: "Romanian", value: "ro" },
-  // 						{ name: "Russian", value: "ru" },
-  // 						{ name: "Spanish", value: "es" },
-  // 						{ name: "Swedish", value: "sv" },
-  // 						{ name: "Thai", value: "th" },
-  // 						{ name: "Turkish", value: "tr" },
-  // 					],
-  // 				),
-  // 		)
-  // 		.addStringOption((option) =>
-  // 			option
-  // 				.setName("prompt")
-  // 				.setDescription("The prompt to use")
-  // 				.setRequired(false)
-  // 				.setMinLength(1)
-  // 				.setMaxLength(100),
-  // 		)
-  // 		.addChannelOption((option) =>
-  // 			option
-  // 				.setName("channel")
-  // 				.setDescription("The text channel to send transcriptions to")
-  // 				.setRequired(false),
-  // 		);
-
-  // 	return builder;
-  // },
 };
 
 export default command;

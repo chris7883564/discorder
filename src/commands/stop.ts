@@ -4,7 +4,9 @@ import type { Command } from "./types";
 
 //---------------------------------------------------------------------
 import Logger from "@/logger";
+import { CONVEX_SITE_URL } from "@/config";
 const logger = new Logger("commands");
+logger.disable();
 
 //---------------------------------------------------------------------
 // returns string if there's an error
@@ -28,14 +30,11 @@ export const stopMuseSession = async (
   );
 
   const payload = JSON.stringify({ session_id: recorder?.session_id });
-  const response = await fetch(
-    "https://trustworthy-kudu-486.convex.site/discord/stop",
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: payload,
-    },
-  );
+  const response = await fetch(CONVEX_SITE_URL + "/discord/stop", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: payload,
+  });
   logger.info(response.status, response.statusText);
   if (!response.ok) {
     const msg = `Failed to stop the recording session with Muse service. ${response.status} ${response.statusText}`;
@@ -80,12 +79,10 @@ const command: Command = {
       await interaction.reply("Recording has stopped.");
 
       // showDirectoryStructure()
-
       // const data = removed.gather();
       // const transcription = data
       // 	.map(([t, u, c]) => `[${ms_to_time(t)}] ${u}: ${c}`)
       // 	.join("\n");
-
       // await interaction.followUp({
       // 	files: [
       // 		{

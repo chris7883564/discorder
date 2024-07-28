@@ -1,10 +1,11 @@
-import debug from "debug";
 import { Client } from "discord.js";
 import { commands } from "./commands";
 
 //---------------------------------------------------------------------
 import Logger from "@/logger";
+import { CONVEX_SITE_URL } from "./config";
 const logger = new Logger("bot");
+logger.disable();
 
 //---------------------------------------------------------------------
 export const client = new Client({
@@ -12,53 +13,8 @@ export const client = new Client({
 });
 
 //---------------------------------------------------------------------
-async function postLinkDiscorder(username: string) {
-  const response = await fetch(
-    "https://trustworthy-kudu-486.convex.site/linkdiscorder",
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ author: username, body: "ready" }),
-    },
-  );
-  if (!response.ok) {
-    throw new Error(response.statusText);
-  }
-
-  // Assuming you want to do something with the response
-  // const data = await response.json(); // or .text() if it's not JSON
-  // logger.info(data);
-  logger.info(response.statusText);
-}
-
-//---------------------------------------------------------------------
 client.on("ready", () => {
   logger.info(`client logged in as ${client.user?.tag}`);
-  postLinkDiscorder(client.user ? client.user.tag : "unknown").catch(
-    console.error,
-  );
-});
-
-//---------------------------------------------------------------------
-client.on("guildDelete", async (guild) => {
-  console.log(`Bot deleted from guild: ${guild.name} (id: ${guild.id}).`);
-  try {
-    const serverUrl =
-      "https://trustworthy-kudu-486.convex.site/discord/unlinkguild";
-    const data = { guild_id: guild.id };
-    const response = await fetch(serverUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-    if (!response.ok) {
-      console.error(response.status, response.statusText);
-      throw new Error(response.statusText);
-    }
-    console.log(response.statusText);
-  } catch (error) {
-    console.error("guildDelete error: ", error);
-  }
 });
 
 //---------------------------------------------------------------------
@@ -73,8 +29,7 @@ client.on("guildCreate", async (guild) => {
   }
 
   try {
-    const serverUrl =
-      "https://trustworthy-kudu-486.convex.site/discord/linkguild";
+    const serverUrl = CONVEX_SITE_URL + "/discord/linkguild";
     const data = {
       guild_id: guild.id,
       guild_name: guild.name,
@@ -92,6 +47,27 @@ client.on("guildCreate", async (guild) => {
     console.log(response.statusText);
   } catch (error) {
     console.error("guildCreate error: ", error);
+  }
+});
+
+//---------------------------------------------------------------------
+client.on("guildDelete", async (guild) => {
+  console.log(`Bot deleted from guild: ${guild.name} (id: ${guild.id}).`);
+  try {
+    const serverUrl = CONVEX_SITE_URL + "/discord/unlinkguild";
+    const data = { guild_id: guild.id };
+    const response = await fetch(serverUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      console.error(response.status, response.statusText);
+      throw new Error(response.statusText);
+    }
+    console.log(response.statusText);
+  } catch (error) {
+    console.error("guildDelete error: ", error);
   }
 });
 

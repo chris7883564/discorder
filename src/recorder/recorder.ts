@@ -13,6 +13,7 @@ import { stopMuseSession } from "@/commands/stop";
 
 import Logger from "@/logger";
 const logger = new Logger("recorder");
+logger.disable();
 
 const RATE = 16000;
 const CHANNELS = 1;
