@@ -21,6 +21,10 @@ const AFTER_SILENCE_MSECS = process.env.AFTER_SILENCE_MSECS
   ? Number(process.env.AFTER_SILENCE_MSECS)
   : 200;
 
+console.log("AFTER_SILENCE_MSECS", AFTER_SILENCE_MSECS);
+console.log("RATE", RATE);
+console.log("CHANNELS", CHANNELS);
+
 export class Recorder extends EventEmitter {
   public session_id: string;
   public conn: VoiceConnection;
