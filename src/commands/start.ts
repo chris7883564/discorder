@@ -139,6 +139,10 @@ const command: Command = {
     // log file structure for debugging
     // showDirectoryStructure()
 
+    // VAD setup
+    const options: Partial<NonRealTimeVADOptions> = {};
+    const myvad = await NonRealTimeVAD.new(options);
+
     //----- event handler for when recording is done
     //
     recorder.on(
@@ -159,23 +163,22 @@ const command: Command = {
         //
         // VAD HERE
         //
-        const options: Partial<NonRealTimeVADOptions> = {
-          /* ... */
-        };
-        const myvad = await NonRealTimeVAD.new(options);
-        const fileBuffer = await fs.readFileSync(wav_filename);
 
         // Convert Buffer to Float32Array
+        const fileBuffer = await fs.readFileSync(wav_filename);
         const float32Array = new Float32Array(
           fileBuffer.buffer,
           fileBuffer.byteOffset,
           fileBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT,
         );
+        let bFoundVADVoice = false;
         for await (const { audio, start, end } of myvad.run(
           float32Array,
           16000,
         )) {
           console.log(time_offset, start, end);
+          bFoundVADVoice = true;
+          break;
           // do stuff with
           //   audio (float32array of audio)
           //   start (milliseconds into audio where speech starts)
@@ -183,26 +186,28 @@ const command: Command = {
         }
 
         // upload file to convex, then delete it from local storage
-        uploadFileToConvex(
-          wav_filename,
-          username,
-          session_id,
-          user_id,
-          time_offset,
-          guild_id,
-          channel_id,
-        )
-          .then(() => {
-            // delete the file after upload, even if the upload fails (lost forever)
-            fs.unlink(wav_filename, (err) => {
-              if (err) {
-                logger.error("Failed to delete", wav_filename, err);
-              }
+        if (bFoundVADVoice) {
+          uploadFileToConvex(
+            wav_filename,
+            username,
+            session_id,
+            user_id,
+            time_offset,
+            guild_id,
+            channel_id,
+          )
+            .then(() => {
+              // delete the file after upload, even if the upload fails (lost forever)
+              fs.unlink(wav_filename, (err) => {
+                if (err) {
+                  logger.error("Failed to delete", wav_filename, err);
+                }
+              });
+            })
+            .catch((e) => {
+              logger.error("Failed to upload", wav_filename, e);
             });
-          })
-          .catch((e) => {
-            logger.error("Failed to upload", wav_filename, e);
-          });
+        }
       },
     );
 
