@@ -14,6 +14,10 @@ const logger = new Logger("commands");
 
 logger.disable();
 
+// VAD CONTROL
+const USE_VAD = process.env.USE_VAD ? true : false;
+console.log("USE_VAD", USE_VAD);
+
 //---------------------------------------------------------------------
 const command: Command = {
   name: "start",
@@ -161,28 +165,29 @@ const command: Command = {
           channel.guild.members.cache.get(user_id)?.displayName ?? user_id;
 
         //
-        // VAD HERE
+        // VAD
         //
-
-        // Convert Buffer to Float32Array
-        const fileBuffer = await fs.readFileSync(wav_filename);
-        const float32Array = new Float32Array(
-          fileBuffer.buffer,
-          fileBuffer.byteOffset,
-          fileBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT,
-        );
-        let bFoundVADVoice = false;
-        for await (const { audio, start, end } of myvad.run(
-          float32Array,
-          16000,
-        )) {
-          console.log(time_offset, start, end);
-          bFoundVADVoice = true;
-          break;
-          // do stuff with
-          //   audio (float32array of audio)
-          //   start (milliseconds into audio where speech starts)
-          //   end (milliseconds into audio where speech ends)
+        let bFoundVADVoice = !USE_VAD; // default to true if there's no VAD in use
+        if (USE_VAD) {
+          const fileBuffer = await fs.readFileSync(wav_filename);
+          // Convert Buffer to Float32Array
+          const float32Array = new Float32Array(
+            fileBuffer.buffer,
+            fileBuffer.byteOffset,
+            fileBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT,
+          );
+          for await (const { audio, start, end } of myvad.run(
+            float32Array,
+            16000,
+          )) {
+            console.log(time_offset, start, end);
+            bFoundVADVoice = true;
+            break;
+            // do stuff with
+            //   audio (float32array of audio)
+            //   start (milliseconds into audio where speech starts)
+            //   end (milliseconds into audio where speech ends)
+          }
         }
 
         // upload file to convex, then delete it from local storage
