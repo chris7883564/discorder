@@ -188,6 +188,8 @@ const command: Command = {
             //   start (milliseconds into audio where speech starts)
             //   end (milliseconds into audio where speech ends)
           }
+          if (!bFoundVADVoice)
+            console.log(time_offset, "no speech detected in burst");
         }
 
         // upload file to convex, then delete it from local storage
