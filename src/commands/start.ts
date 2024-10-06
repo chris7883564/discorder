@@ -5,6 +5,8 @@ import { add, tasks } from "../recorder";
 import { uploadFileToConvex } from "../recorder/convexuploader";
 import type { Command } from "./types";
 
+import { NonRealTimeVAD, NonRealTimeVADOptions } from "@ricky0123/vad-node";
+
 //---------------------------------------------------------------------
 import Logger from "@/logger";
 import { CONVEX_SITE_URL } from "@/config";
@@ -153,6 +155,32 @@ const command: Command = {
         //
         const username =
           channel.guild.members.cache.get(user_id)?.displayName ?? user_id;
+
+        //
+        // VAD HERE
+        //
+        const options: Partial<NonRealTimeVADOptions> = {
+          /* ... */
+        };
+        const myvad = await NonRealTimeVAD.new(options);
+        const fileBuffer = await fs.readFileSync(wav_filename);
+
+        // Convert Buffer to Float32Array
+        const float32Array = new Float32Array(
+          fileBuffer.buffer,
+          fileBuffer.byteOffset,
+          fileBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT,
+        );
+        for await (const { audio, start, end } of myvad.run(
+          float32Array,
+          16000,
+        )) {
+          console.log(time_offset, start, end);
+          // do stuff with
+          //   audio (float32array of audio)
+          //   start (milliseconds into audio where speech starts)
+          //   end (milliseconds into audio where speech ends)
+        }
 
         // upload file to convex, then delete it from local storage
         uploadFileToConvex(

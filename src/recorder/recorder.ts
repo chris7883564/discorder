@@ -19,7 +19,7 @@ const RATE = 16000;
 const CHANNELS = 1;
 const AFTER_SILENCE_MSECS = process.env.AFTER_SILENCE_MSECS
   ? Number(process.env.AFTER_SILENCE_MSECS)
-  : 200;
+  : 1000;
 
 console.log("AFTER_SILENCE_MSECS", AFTER_SILENCE_MSECS);
 console.log("RATE", RATE);
@@ -51,13 +51,19 @@ export class Recorder extends EventEmitter {
     this.guild = chan.guild;
 
     this.start = Date.now();
+
+    // create a directory for this session
     this.dir = path.join(
       RECORDING_DIR,
       this.guild.toString(),
       this.start.toString(),
     );
+
+    // create the directory for this session
     fs.mkdirSync(this.dir, { recursive: true });
 
+    // write metadata for this session
+    //
     // fs.writeFileSync(
     // 	path.join(this.dir, "meta.json"),
     // 	JSON.stringify({
@@ -73,10 +79,10 @@ export class Recorder extends EventEmitter {
 
   //---------------------------------------------------------------------
   protected setup(guild_id: string) {
-    //--- event handler for connection errors
+    //--- event handler for connection errors ---------------------------------------------------------------------
     this.conn.on("error", logger.error);
 
-    //--- event handler for when speaking starts
+    //--- event handler for when speaking starts ---------------------------------------------------------------------
     this.conn.receiver.speaking.on("start", async (user) => {
       // ignore bots
       if (this.chan.members.get(user)?.user.bot) {
@@ -160,6 +166,7 @@ export class Recorder extends EventEmitter {
       });
     });
 
+    //--- event handler for change in connections ---------------------------------------------------------------------
     const client = this.chan.client;
     client.on("voiceStateUpdate", (old, cur) => {
       if (old.member?.id !== this.user.id) {
@@ -176,7 +183,7 @@ export class Recorder extends EventEmitter {
       }
     });
 
-    // check once per second for connection destroyed status
+    //--- check once per second for connection destroyed status ---------------------------------------------------------------------
     this.interval = setInterval(() => {
       if (this.conn.state.status === "destroyed") {
         logger.info("connection destroyed");
