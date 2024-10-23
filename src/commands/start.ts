@@ -10,6 +10,7 @@ import { NonRealTimeVAD, NonRealTimeVADOptions } from "@ricky0123/vad-node";
 //---------------------------------------------------------------------
 import Logger from "@/logger";
 import { CONVEX_SITE_URL } from "@/config";
+import { stopMuseSession } from "./stop";
 const logger = new Logger("commands");
 
 logger.disable();
@@ -82,10 +83,11 @@ const command: Command = {
     // TODO: if there's an existing session, close it first
     const existing_recorder = tasks.get(interaction.member.id);
     if (existing_recorder) {
-      const msg = "Please stop the existing recording first with /stop";
+      stopMuseSession(interaction.member.id);
+      const msg = "Found an existing session, using /stop automatically.";
       logger.warn(msg);
-      await interaction.reply(msg);
-      return;
+      // await interaction.reply(msg);
+      // return;
     }
 
     // ----- process options from the command
