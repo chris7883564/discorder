@@ -104,6 +104,16 @@ const command: Command = {
       return;
     }
 
+    // ----- check if the PIN exists against a game in the convex database
+    const response_game_exists = await fetch(
+      CONVEX_SITE_URL + "/discord/preflight?gamePIN=" + gamePIN,
+    );
+    if (!response_game_exists.ok) {
+      const msg = `No game found for that PIN number - check again. ${response_game_exists.status} ${response_game_exists.statusText}`;
+      await interaction.followUp(msg);
+      return;
+    }
+
     // JOIN VOICE CHANNEL
     // ---- ok now we can start the new voice channel recording
     const conn = joinVoiceChannel({
