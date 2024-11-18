@@ -80,6 +80,9 @@ const command: Command = {
     // 	return;
     // }
 
+    // defer
+    interaction.deferReply();
+
     // TODO: if there's an existing session, close it first
     const existing_recorder = tasks.get(interaction.member.id);
     if (existing_recorder) {
@@ -96,7 +99,8 @@ const command: Command = {
     if (!gamePIN) {
       const msg = `Invalid game PIN. Please enter a 6-digit game PIN code for your Muse Game eg. 544232`;
       console.error(msg);
-      await interaction.reply(msg);
+      await interaction.followUp(msg);
+      // await interaction.reply(msg);
       return;
     }
 
@@ -128,7 +132,8 @@ const command: Command = {
     logger.info(response.status, response.statusText);
     if (!response.ok) {
       const msg = `Failed to start the recording session with Muse. ${response.status} ${response.statusText}`;
-      await interaction.reply(msg);
+      // await interaction.reply(msg);
+      await interaction.followUp(msg);
       // throw new Error("Failed to stop session with Muse service");
       return;
     }
@@ -220,7 +225,8 @@ const command: Command = {
       },
     );
 
-    await interaction.reply(`Recording has started.`);
+    // await interaction.reply(`Recording has started.`);
+    await interaction.followUp(`Recording has started.`);
   },
   build: (builder) => {
     logger.info("Building start command");
