@@ -5,7 +5,12 @@ import path from "node:path";
 import pkg from "@next/env";
 const { loadEnvConfig } = pkg;
 const projectDir = process.cwd();
+
+//---------------------------------------------------------------------
+import Logger from "@/logger";
+const logger = new Logger("commands");
 logger.info("PROJECT_DIRECTORY = " + projectDir);
+
 loadEnvConfig(projectDir);
 
 //---------------------------------------------------------------------
