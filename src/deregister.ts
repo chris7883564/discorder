@@ -9,6 +9,11 @@ import { REST, Routes } from "discord.js";
 // const { Routes } = require('discord-api-types/v10');
 import { BOT_ID, BOT_TOKEN, GUILD_ID } from "./config";
 
+//---------------------------------------------------------------------
+import Logger from "@/logger";
+const logger = new Logger("commands");
+logger.enable();
+
 const removeGlobally = (TOKEN: string, CLIENT_ID: string) => {
   const rest = new REST({ version: "10" }).setToken(TOKEN);
 

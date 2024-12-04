@@ -15,19 +15,19 @@ loadEnvConfig(projectDir);
 
 //---------------------------------------------------------------------
 // DISCORD ENVIRONMENT VARIABLES
+if (!process.env.BOT_TOKEN) {
+  throw new Error("Missing BOT_TOKEN");
+}
+if (!process.env.BOT_ID) {
+  throw new Error("Missing BOT_ID");
+}
+if (!process.env.GUILD_ID) {
+  throw new Error("Missing GUILD_ID");
+}
+
 export const BOT_TOKEN = process.env.BOT_TOKEN;
 export const BOT_ID = process.env.BOT_ID;
 export const GUILD_ID = process.env.GUILD_ID;
-
-if (!BOT_TOKEN) {
-  throw new Error("Missing BOT_TOKEN");
-}
-if (!BOT_ID) {
-  throw new Error("Missing BOT_ID");
-}
-if (!GUILD_ID) {
-  throw new Error("Missing GUILD_ID");
-}
 
 //---------------------------------------------------------------------
 // CONVEX ENVIRONMENT VARIABLES

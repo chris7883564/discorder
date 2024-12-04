@@ -2,6 +2,11 @@ import { REST, Routes, SlashCommandBuilder } from "discord.js";
 import { commands } from "./commands";
 import { BOT_ID, BOT_TOKEN } from "./config";
 
+//---------------------------------------------------------------------
+import Logger from "@/logger";
+const logger = new Logger("commands");
+logger.enable();
+
 const body = commands.map((cmd) => {
   const builder = new SlashCommandBuilder()
     .setName(cmd.name)
