@@ -1,6 +1,11 @@
 import type { VoiceConnection } from "@discordjs/voice";
-import { EndBehaviorType } from "@discordjs/voice";
-import type { Guild, GuildMember, VoiceBasedChannel } from "discord.js";
+import { EndBehaviorType, VoiceConnectionStatus } from "@discordjs/voice";
+import type {
+  Guild,
+  GuildMember,
+  VoiceBasedChannel,
+  VoiceState,
+} from "discord.js";
 import { EventEmitter } from "node:events";
 import fs from "node:fs";
 import path from "node:path";
@@ -168,36 +173,56 @@ export class Recorder extends EventEmitter {
 
     //--- event handler for change in connections ---------------------------------------------------------------------
     const client = this.chan.client;
-    client.on("voiceStateUpdate", (old, cur) => {
-      logger.warn("voiceStateUpdate event", old, cur);
+    client.on("voiceStateUpdate", (old: VoiceState, cur: VoiceState) => {
+      const msg = `voiceStateUpdate event: old.channelId=${old.channelId}, this.channelId=${this.chan.id}`;
+      logger.info(msg);
 
+      // does this event relate to this userId
       if (old.member?.id !== this.user.id) {
+        logger.warn("voiceStateUpdate event: memberId changed");
         return;
       }
 
+      // does this event relate to this userId
       if (old.channelId !== this.chan.id) {
+        logger.warn("voiceStateUpdate event: channelId changed");
         return;
       }
 
       if (cur.channelId === null) {
-        logger.error("null channelId found");
+        logger.error("voiceStateUpdate event: null channelId detected");
         // this.stop();
       }
     });
 
     //--- check once per second for connection destroyed status ---------------------------------------------------------------------
+
+    let lastStatusVoiceConnectionStatus: VoiceConnectionStatus =
+      VoiceConnectionStatus.Disconnected;
     this.interval = setInterval(() => {
-      if (this.conn.state.status === "destroyed") {
-        logger.error("connection destroyed");
-        logger.error("watchdog calling stop...");
-        // this.stop();
+      // has it changed?
+      if (lastStatusVoiceConnectionStatus !== this.conn.state.status) {
+        logger.info(
+          "VoiceConnectionStatus changed to ",
+          this.conn.state.status,
+        );
+        lastStatusVoiceConnectionStatus = this.conn.state.status;
+
+        const collection = this.chan.members;
+        logger.info(`there are ${collection.size} members in this channel`);
+
+        const user = collection.get(this.user.id);
+        if (!user) {
+          logger.info("user is no longer in this channel");
+          logger.info("watchdog calling stop...");
+          // this.stop();
+        }
       }
-      const user = this.chan.members.get(this.user.id);
-      if (!user) {
-        logger.info("no more members in the channel");
-        logger.info("watchdog calling stop...");
-        // this.stop();
-      }
+      // if (this.conn.state.status === VoiceConnectionStatus.Destroyed ) {
+      // logger.error("connection destroyed");
+      // logger.error("watchdog calling stop...");
+      // this.stop();
+      // }
     }, 1000);
   }
 
@@ -207,7 +232,7 @@ export class Recorder extends EventEmitter {
       return;
     }
     logger.info("stopping muse session...", this.session_id);
-    this.stopped = true;
+    stopMuseSession(this.session_id);
 
     this.conn.destroy();
     if (this.interval) {
@@ -215,8 +240,8 @@ export class Recorder extends EventEmitter {
     }
 
     // ----- stop muse session in the convex database
-    stopMuseSession(this.session_id);
     logger.info("stopped.");
+    this.stopped = true;
   }
 
   //--- old gather function, not used
