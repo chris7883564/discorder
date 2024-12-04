@@ -7,7 +7,8 @@ if (!process.env.AXIOM_API_TOKEN) {
 }
 const axiom = new Axiom({ token: process.env.AXIOM_API_TOKEN });
 
-axiom.ingest("MuseGPT", [{ module: "discorder", info: "logger started" }]);
+const AXIOM_DATASET = "musegpt";
+axiom.ingest(AXIOM_DATASET, [{ module: "discorder", info: "logger started" }]);
 await axiom.flush();
 
 class Logger {
@@ -29,16 +30,16 @@ class Logger {
   info(...messages: any[]) {
     if (this.enabled) {
       const msg = `${this.baseNamespace}:info ` + messages;
-      logger.info(msg);
-      axiom.ingest("MuseGPT", [{ module: "discorder", info: msg }]);
+      console.info(msg);
+      axiom.ingest(AXIOM_DATASET, [{ module: "discorder", info: msg }]);
     }
   }
 
   warn(...messages: any[]) {
     if (this.enabled) {
       const msg = `${this.baseNamespace}:warn ` + messages;
-      logger.info(msg);
-      axiom.ingest("MuseGPT", [{ module: "discorder", warning: msg }]);
+      console.warn(msg);
+      axiom.ingest(AXIOM_DATASET, [{ module: "discorder", warning: msg }]);
       axiom.flush();
     }
   }
@@ -46,7 +47,7 @@ class Logger {
   error(...messages: any[]) {
     const msg = `${this.baseNamespace}:error ` + messages;
     debug(msg);
-    axiom.ingest("MuseGPT", [{ module: "discorder", error: msg }]);
+    axiom.ingest(AXIOM_DATASET, [{ module: "discorder", error: msg }]);
     axiom.flush();
   }
 }
