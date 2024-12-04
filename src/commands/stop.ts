@@ -6,7 +6,7 @@ import type { Command } from "./types";
 import Logger from "@/logger";
 import { CONVEX_SITE_URL } from "@/config";
 const logger = new Logger("commands");
-logger.disable();
+logger.enable();
 
 //---------------------------------------------------------------------
 // returns string if there's an error

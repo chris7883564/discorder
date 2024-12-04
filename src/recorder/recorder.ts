@@ -13,7 +13,7 @@ import { stopMuseSession } from "@/commands/stop";
 
 import Logger from "@/logger";
 const logger = new Logger("recorder");
-logger.disable();
+logger.enable();
 
 const RATE = 16000;
 const CHANNELS = 1;
@@ -21,9 +21,9 @@ const AFTER_SILENCE_MSECS = process.env.AFTER_SILENCE_MSECS
   ? Number(process.env.AFTER_SILENCE_MSECS)
   : 1000;
 
-console.log("AFTER_SILENCE_MSECS", AFTER_SILENCE_MSECS);
-console.log("RATE", RATE);
-console.log("CHANNELS", CHANNELS);
+logger.info("AFTER_SILENCE_MSECS", AFTER_SILENCE_MSECS);
+logger.info("RATE", RATE);
+logger.info("CHANNELS", CHANNELS);
 
 export class Recorder extends EventEmitter {
   public session_id: string;
@@ -169,6 +169,8 @@ export class Recorder extends EventEmitter {
     //--- event handler for change in connections ---------------------------------------------------------------------
     const client = this.chan.client;
     client.on("voiceStateUpdate", (old, cur) => {
+      logger.warn("voiceStateUpdate event", old, cur);
+
       if (old.member?.id !== this.user.id) {
         return;
       }
@@ -178,23 +180,23 @@ export class Recorder extends EventEmitter {
       }
 
       if (cur.channelId === null) {
-        logger.info("voiceStateUpdate calling stop...");
-        this.stop();
+        logger.error("null channelId found");
+        // this.stop();
       }
     });
 
     //--- check once per second for connection destroyed status ---------------------------------------------------------------------
     this.interval = setInterval(() => {
       if (this.conn.state.status === "destroyed") {
-        logger.info("connection destroyed");
-        logger.info("watchdog calling stop...");
-        this.stop();
+        logger.error("connection destroyed");
+        logger.error("watchdog calling stop...");
+        // this.stop();
       }
       const user = this.chan.members.get(this.user.id);
       if (!user) {
         logger.info("no more members in the channel");
         logger.info("watchdog calling stop...");
-        this.stop();
+        // this.stop();
       }
     }, 1000);
   }

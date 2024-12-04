@@ -8,7 +8,7 @@ http.route({
 	path: "/sendAudio",
 	method: "POST",
 	handler: httpAction(async (ctx, request) => {
-		console.log(">>>>>>>>>>>>>>>> sendAudio");
+		logger.info(">>>>>>>>>>>>>>>> sendAudio");
 		// Step 1: Store the file
 		const blob = await request.blob();
 		const storageId = await ctx.storage.store(blob);

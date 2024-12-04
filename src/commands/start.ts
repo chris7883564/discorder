@@ -13,11 +13,11 @@ import { CONVEX_SITE_URL } from "@/config";
 import { stopMuseSession } from "./stop";
 const logger = new Logger("commands");
 
-logger.disable();
+logger.enable();
 
 // VAD CONTROL
 const USE_VAD = process.env.USE_VAD ? true : false;
-console.log("USE_VAD", USE_VAD);
+logger.info("USE_VAD", USE_VAD);
 
 //---------------------------------------------------------------------
 const command: Command = {
@@ -98,7 +98,7 @@ const command: Command = {
     logger.info("gamePIN ", gamePIN);
     if (!gamePIN) {
       const msg = `Invalid game PIN. Please enter a 6-digit game PIN code for your Muse Game eg. 544232`;
-      console.error(msg);
+      logger.error(msg);
       await interaction.followUp(msg);
       // await interaction.reply(msg);
       return;
@@ -114,7 +114,7 @@ const command: Command = {
       return;
     }
     const game = (await response_game.json()) as { session_id: string };
-    console.log("Game found:", game);
+    logger.info("Game found:", game);
 
     // JOIN VOICE CHANNEL
     // ---- ok now we can start the new voice channel recording
@@ -199,7 +199,7 @@ const command: Command = {
             float32Array,
             16000,
           )) {
-            console.log(time_offset, start, end);
+            logger.info(time_offset, start, end);
             bFoundVADVoice = true;
             break;
             // do stuff with
@@ -208,7 +208,7 @@ const command: Command = {
             //   end (milliseconds into audio where speech ends)
           }
           if (!bFoundVADVoice)
-            console.log(time_offset, "no speech detected in burst");
+            logger.info(time_offset, "no speech detected in burst");
         }
 
         // upload file to convex, then delete it from local storage

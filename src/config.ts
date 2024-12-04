@@ -5,7 +5,7 @@ import path from "node:path";
 import pkg from "@next/env";
 const { loadEnvConfig } = pkg;
 const projectDir = process.cwd();
-console.log("PROJECT_DIRECTORY = " + projectDir);
+logger.info("PROJECT_DIRECTORY = " + projectDir);
 loadEnvConfig(projectDir);
 
 //---------------------------------------------------------------------
@@ -31,7 +31,7 @@ if (!CONVEX_SITE_URL) {
   throw new Error("Missing CONVEX_SITE_URL");
 }
 
-console.log("CONVEX_SITE_URL = " + CONVEX_SITE_URL);
+logger.info("CONVEX_SITE_URL = " + CONVEX_SITE_URL);
 
 // export const DATA_DIR = path.resolve(process.env.DATA_DIR ?? "./data");
 // export const RECORDING_DIR = path.join(DATA_DIR, "recording");

@@ -18,7 +18,7 @@ import Logger from "@/logger";
 import { CONVEX_SITE_URL } from "@/config";
 const logger = new Logger("convexuploader");
 
-logger.disable();
+logger.enable();
 
 // --------------------------------------------------------------------------------------------------
 export async function uploadFileToConvex(

@@ -52,7 +52,7 @@ export const transcribe = internalAction({
 				to: -1,
 			},
 		];
-		console.log(result);
+		logger.info(result);
 
 		// await ctx.runMutation(internal.whisper.saveTranscript, {
 		// 	id: args.id,
