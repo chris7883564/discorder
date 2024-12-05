@@ -98,8 +98,8 @@ const command: Command = {
     logger.info(`gamePIN ${gamePIN}`);
     if (!gamePIN) {
       const msg = `Invalid game PIN. Please enter a 6-digit game PIN code for your Muse Game eg. 544232`;
-      logger.error(msg);
       await interaction.followUp(msg);
+      logger.error(msg);
       // await interaction.reply(msg);
       return;
     }
