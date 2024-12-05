@@ -110,6 +110,7 @@ const command: Command = {
     );
     if (!response_game.ok) {
       const msg = `No game found for that PIN number - check again. ${response_game.status} ${response_game.statusText}`;
+      logger.error(msg);
       await interaction.followUp(msg);
       return;
     }
