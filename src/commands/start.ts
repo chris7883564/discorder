@@ -86,16 +86,16 @@ const command: Command = {
     // TODO: if there's an existing session, close it first
     const existing_recorder = tasks.get(interaction.member.id);
     if (existing_recorder) {
-      stopMuseSession(interaction.member.id);
-      const msg = "Found an existing session, using /stop automatically.";
+      const msg = "Found an existing session, issuing /stop automatically.";
       logger.warn(msg);
+      stopMuseSession(interaction.member.id);
       // await interaction.reply(msg);
       // return;
     }
 
     // ----- process options from the command
     const gamePIN = interaction.options.getString("gamepin");
-    logger.info("gamePIN ", gamePIN);
+    logger.info(`gamePIN ${gamePIN}`);
     if (!gamePIN) {
       const msg = `Invalid game PIN. Please enter a 6-digit game PIN code for your Muse Game eg. 544232`;
       logger.error(msg);
@@ -114,7 +114,7 @@ const command: Command = {
       return;
     }
     const game = (await response_game.json()) as { session_id: string };
-    logger.info("Game found:", game);
+    logger.info("Game found: " + game);
 
     // JOIN VOICE CHANNEL
     // ---- ok now we can start the new voice channel recording
@@ -152,7 +152,7 @@ const command: Command = {
 
     const jsonResponse = (await response.json()) as { session_id: string };
     const session_id = jsonResponse.session_id;
-    logger.info("Session ID:", session_id);
+    logger.info("Session ID: " + session_id);
 
     // start the recorder object
     // save the session_id
@@ -208,7 +208,7 @@ const command: Command = {
             //   end (milliseconds into audio where speech ends)
           }
           if (!bFoundVADVoice)
-            logger.info(time_offset, "no speech detected in burst");
+            logger.info(time_offset + "no speech detected in burst");
         }
 
         // upload file to convex, then delete it from local storage

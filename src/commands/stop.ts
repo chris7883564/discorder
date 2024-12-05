@@ -21,12 +21,10 @@ export const stopMuseSession = async (
   const recorder = tasks.get(interaction_member_id);
   if (!recorder) return null;
 
-  logger.info("stopMuseSession: stopping recorder for ", interaction_member_id);
   logger.info(
-    "username = ",
-    interaction_member_id.username,
-    "guild_id = ",
-    recorder?.user.guild.id,
+    "stopMuseSession: stopping recorder for " + interaction_member_id,
+    ", username = " + interaction_member_id.username,
+    ", guild_id = " + recorder?.user.guild.id,
   );
 
   const payload = JSON.stringify({ session_id: recorder?.session_id });
@@ -35,14 +33,15 @@ export const stopMuseSession = async (
     headers: { "Content-Type": "application/json" },
     body: payload,
   });
-  logger.info(response.status, response.statusText);
+
   if (!response.ok) {
     const msg = `Failed to stop the recording session with Muse service. ${response.status} ${response.statusText}`;
     logger.error(msg);
     // await interaction.reply(msg);
     // throw new Error("Failed to stop session with Muse service");
     return msg;
-  }
+  } else logger.info(`${response.status} ${response.statusText}`);
+
   return null;
 };
 

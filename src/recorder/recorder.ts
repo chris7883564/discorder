@@ -174,24 +174,31 @@ export class Recorder extends EventEmitter {
     //--- event handler for change in connections ---------------------------------------------------------------------
     const client = this.chan.client;
     client.on("voiceStateUpdate", (old: VoiceState, cur: VoiceState) => {
-      const msg = `voiceStateUpdate event: old.channelId=${old.channelId}, this.channelId=${this.chan.id}`;
-      logger.info(msg);
+      // process channel state
+      //
+      logger.info(
+        `voiceStateUpdate event: old.channelId=${old.channelId}, cur.channelId=${cur.channelId}`,
+      );
+      if (cur.channelId === null && this.chan.id) {
+        logger.info("new channelId detected: could auto start");
+        return;
+      }
 
+      if (old.channelId !== this.chan.id) {
+        logger.warn("voiceStateUpdate event: channelId changed ");
+        return;
+      }
+      if (cur.channelId === null) {
+        logger.error("voiceStateUpdate event: null channelId detected");
+        // this.stop();
+      }
+
+      // process member state
+      //
       // does this event relate to this userId
       if (old.member?.id !== this.user.id) {
         logger.warn("voiceStateUpdate event: memberId changed");
         return;
-      }
-
-      // does this event relate to this userId
-      if (old.channelId !== this.chan.id) {
-        logger.warn("voiceStateUpdate event: channelId changed");
-        return;
-      }
-
-      if (cur.channelId === null) {
-        logger.error("voiceStateUpdate event: null channelId detected");
-        // this.stop();
       }
     });
 
@@ -203,13 +210,12 @@ export class Recorder extends EventEmitter {
       // has it changed?
       if (lastStatusVoiceConnectionStatus !== this.conn.state.status) {
         logger.info(
-          "VoiceConnectionStatus changed to ",
-          this.conn.state.status,
+          "VoiceConnectionStatus changed to " + this.conn.state.status,
         );
         lastStatusVoiceConnectionStatus = this.conn.state.status;
 
         const collection = this.chan.members;
-        logger.info(`there are ${collection.size} members in this channel`);
+        logger.info(`${collection.size} members in this channel`);
 
         // const user = collection.get(this.user.id);
         // if (!user) {

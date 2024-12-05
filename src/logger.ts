@@ -8,8 +8,6 @@ if (!process.env.AXIOM_API_TOKEN) {
 const axiom = new Axiom({ token: process.env.AXIOM_API_TOKEN });
 
 const AXIOM_DATASET = "musegpt";
-axiom.ingest(AXIOM_DATASET, [{ module: "discorder", info: "logger started" }]);
-await axiom.flush();
 
 class Logger {
   private baseNamespace: string;
