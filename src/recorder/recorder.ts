@@ -211,11 +211,11 @@ export class Recorder extends EventEmitter {
         const collection = this.chan.members;
         logger.info(`there are ${collection.size} members in this channel`);
 
-        const user = collection.get(this.user.id);
-        if (!user) {
-          logger.info("user is no longer in this channel");
-          logger.info("watchdog calling stop...");
-          // this.stop();
+        // const user = collection.get(this.user.id);
+        // if (!user) {
+        if (!collection.size) {
+          logger.info("channel is empty: watchdog calling stop...");
+          this.stop();
         }
       }
       // if (this.conn.state.status === VoiceConnectionStatus.Destroyed ) {
