@@ -97,7 +97,7 @@ const command: Command = {
     const gamePIN = interaction.options.getString("gamepin");
     logger.info(`gamePIN ${gamePIN}`);
     if (!gamePIN) {
-      const msg = `Invalid game PIN. Please enter a 6-digit game PIN code for your Muse Game eg. 544232`;
+      const msg = `Invalid game PIN. Please enter a 6-digit game PIN code for your Muse Game eg. 544231`;
       await interaction.followUp(msg);
       logger.error(msg);
       // await interaction.reply(msg);
