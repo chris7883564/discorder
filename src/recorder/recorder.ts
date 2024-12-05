@@ -177,21 +177,21 @@ export class Recorder extends EventEmitter {
       // process channel state
       //
       logger.info(
-        `voiceStateUpdate event: old.channelId=${old.channelId}, cur.channelId=${cur.channelId}`,
+        `voiceStateUpdate event: old.channelId=${old.channelId}, cur.channelId=${cur.channelId}, this.chan.id=${this.chan.id}`,
       );
-      if (cur.channelId === null && this.chan.id) {
-        logger.info("new channelId detected: could auto start");
-        return;
-      }
+      // if (old.channelId === null && this.chan.id) {
+      //   logger.info("new channelId detected: could auto start");
+      //   return;
+      // }
 
-      if (old.channelId !== this.chan.id) {
-        logger.warn("voiceStateUpdate event: channelId changed ");
-        return;
-      }
-      if (cur.channelId === null) {
-        logger.error("voiceStateUpdate event: null channelId detected");
-        // this.stop();
-      }
+      // if (old.channelId !== this.chan.id) {
+      //   logger.warn("voiceStateUpdate event: channelId changed ");
+      //   return;
+      // }
+      // if (cur.channelId === null) {
+      //   logger.error("voiceStateUpdate event: null channelId detected");
+      //   // this.stop();
+      // }
 
       // process member state
       //
