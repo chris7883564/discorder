@@ -226,12 +226,12 @@ const command: Command = {
               // delete the file after upload, even if the upload fails (lost forever)
               fs.unlink(wav_filename, (err) => {
                 if (err) {
-                  logger.error("Failed to delete", wav_filename, err);
+                  logger.error("Failed to delete " + wav_filename, err);
                 }
               });
             })
             .catch((e) => {
-              logger.error("Failed to upload", wav_filename, e);
+              logger.error("Failed to upload " + wav_filename, e);
             });
         }
       },
