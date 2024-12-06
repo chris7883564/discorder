@@ -144,7 +144,7 @@ const command: Command = {
     });
     logger.info(response.status, response.statusText);
     if (!response.ok) {
-      const msg = `Failed to start the recording session with Muse. ${response.status} ${response.statusText}`;
+      const msg = `Muse failed to connect to your session. ${response.status} ${response.statusText}`;
       // await interaction.reply(msg);
       await interaction.followUp(msg);
       // throw new Error("Failed to stop session with Muse service");
@@ -239,7 +239,9 @@ const command: Command = {
     );
 
     // await interaction.reply(`Recording has started.`);
-    await interaction.followUp(`Recording has started.`);
+    await interaction.followUp(
+      `OK, I'm connected and listening to the game!  Tell me to disconnect by typing /stop.  I'll disconnect automatically when everyone leaves too.`,
+    );
   },
   build: (builder) => {
     logger.info("Building start command");
