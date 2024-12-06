@@ -22,7 +22,7 @@ logger.info("USE_VAD", USE_VAD);
 //---------------------------------------------------------------------
 const command: Command = {
   name: "start",
-  description: "Start the recorder in the current voice channel",
+  description: "Ask Muse to start listening to the current voice channel",
   action: async (interaction) => {
     logger.info("command received: start");
 
@@ -144,7 +144,7 @@ const command: Command = {
     });
     logger.info(response.status, response.statusText);
     if (!response.ok) {
-      const msg = `Muse failed to connect to your session. ${response.status} ${response.statusText}`;
+      const msg = `Sorry, I was unable to connect to your game session. ${response.status} ${response.statusText}`;
       // await interaction.reply(msg);
       await interaction.followUp(msg);
       // throw new Error("Failed to stop session with Muse service");

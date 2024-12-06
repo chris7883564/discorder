@@ -35,7 +35,7 @@ export const stopMuseSession = async (
   });
 
   if (!response.ok) {
-    const msg = `Failed to stop the recording session with Muse service. ${response.status} ${response.statusText}`;
+    const msg = `Sorry, something went wrong when I tried to disconnect.  Make sure everyone leaves the room, and I will disconnect automatically. ${response.status} ${response.statusText}`;
     logger.error(msg);
     // await interaction.reply(msg);
     // throw new Error("Failed to stop session with Muse service");
@@ -48,7 +48,7 @@ export const stopMuseSession = async (
 //---------------------------------------------------------------------
 const command: Command = {
   name: "stop",
-  description: "Stop the Muse recorder you started",
+  description: "Tell Muse to stop listening to the session",
   action: async (interaction) => {
     logger.info("command received: stop");
 
@@ -75,7 +75,7 @@ const command: Command = {
     // ----- stop interaction
     const removed = remove(interaction.member);
     if (removed) {
-      await interaction.reply("Recording has stopped.");
+      await interaction.reply("OK, I've stopped listening to the game.");
 
       // showDirectoryStructure()
       // const data = removed.gather();
@@ -91,7 +91,9 @@ const command: Command = {
       // 	],
       // });
     } else {
-      await interaction.reply("You didn't start the recorder!");
+      await interaction.reply(
+        "Looks like I'm not listening to this game, so there's nothing to do here.",
+      );
     }
   },
 };
