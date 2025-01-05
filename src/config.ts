@@ -44,3 +44,7 @@ logger.info("CONVEX_SITE_URL = " + CONVEX_SITE_URL);
 export const DATA_DIR = path.resolve(process.env.DATA_DIR ?? "./data"); // where we store all the temporary data
 export const RECORDING_DIR = path.join(DATA_DIR, "recording"); // used for storing recordings
 export const USER_DATA_DIR = path.join(DATA_DIR, "user"); // used for EULA management, should be written to convex
+
+logger.info("DATA_DIR = " + DATA_DIR);
+logger.info("RECORDING_DIR = " + RECORDING_DIR);
+logger.info("USER_DATA_DIR = " + USER_DATA_DIR);

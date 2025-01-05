@@ -42,7 +42,7 @@ export function logDirectoryStructure(
   dirPath: string,
   depth: number = 0,
 ): void {
-  const indent = " ".repeat(depth * 2); // Indentation for nested files/folders
+  const indent = "_".repeat(depth * 2); // Indentation for nested files/folders
 
   try {
     const items = fs.readdirSync(dirPath);
