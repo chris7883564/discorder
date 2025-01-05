@@ -107,7 +107,7 @@ export class Recorder extends EventEmitter {
       this.emit("speaking", user);
 
       // https://discord.js.org/docs/packages/voice/main/EndBehaviorType:Enum#Manual
-      const end_configuration =
+      const configuration =
         AFTER_SILENCE_MSECS > 0
           ? {
               behavior: EndBehaviorType.AfterSilence,
@@ -115,9 +115,7 @@ export class Recorder extends EventEmitter {
             }
           : { behavior: EndBehaviorType.Manual, duration: 1000 };
 
-      const audio = this.conn.receiver.subscribe(user, {
-        end: end_configuration,
-      });
+      const audio = this.conn.receiver.subscribe(user, { end: configuration });
 
       // build filename for this recording talkburst
       const time_offset = Date.now() - this.start; // from start of this recording command session
@@ -151,7 +149,7 @@ export class Recorder extends EventEmitter {
       audio.pipe(transcoder).pipe(filewriter); // connect steps 1 and 2
 
       //------------------ process DONE events
-      out.on("done", () => {
+      filewriter.on("done", () => {
         const metadata = JSON.stringify({
           id: user,
           name: this.chan.members.get(user)?.displayName ?? user,
