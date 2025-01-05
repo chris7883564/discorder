@@ -5,6 +5,7 @@ import type { Command } from "./types";
 //---------------------------------------------------------------------
 import Logger from "@/logger";
 import { CONVEX_SITE_URL } from "@/config";
+import { logDirectoryStructure, ms_to_time } from "@/utils";
 const logger = new Logger("commands");
 logger.enable();
 
@@ -77,19 +78,16 @@ const command: Command = {
     if (removed) {
       await interaction.reply("OK, I've stopped listening to the game.");
 
-      // showDirectoryStructure()
-      // const data = removed.gather();
-      // const transcription = data
-      // 	.map(([t, u, c]) => `[${ms_to_time(t)}] ${u}: ${c}`)
-      // 	.join("\n");
-      // await interaction.followUp({
-      // 	files: [
-      // 		{
-      // 			name: "transcription.txt",
-      // 			attachment: Buffer.from(transcription),
-      // 		},
-      // 	],
-      // });
+      logDirectoryStructure(".");
+      const data = removed.gather();
+      const transcription = data
+        .map(([t, u, c]) => `[${ms_to_time(t)}] ${u}: ${c}`)
+        .join("\n");
+      await interaction.followUp({
+        files: [
+          { name: "transcription.txt", attachment: Buffer.from(transcription) },
+        ],
+      });
     } else {
       await interaction.reply(
         "Looks like I'm not listening to this game, so there's nothing to do here.",

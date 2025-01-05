@@ -68,16 +68,15 @@ export class Recorder extends EventEmitter {
     fs.mkdirSync(this.dir, { recursive: true });
 
     // write metadata for this session
-    //
-    // fs.writeFileSync(
-    // 	path.join(this.dir, "meta.json"),
-    // 	JSON.stringify({
-    // 		start: new Date(this.start).toISOString(),
-    // 		guild: this.chan.guild.id,
-    // 		channel: this.chan.id,
-    // 		user: this.user.id,
-    // 	}),
-    // );
+    fs.writeFileSync(
+      path.join(this.dir, "meta.json"),
+      JSON.stringify({
+        start: new Date(this.start).toISOString(),
+        guild: this.chan.guild.id,
+        channel: this.chan.id,
+        user: this.user.id,
+      }),
+    );
 
     this.setup(this.chan.guild.id);
   }
@@ -104,53 +103,54 @@ export class Recorder extends EventEmitter {
         return;
       }
       this.recording.add(user);
-      // logger.info("speaking start", user);
+      logger.info("speaking start", user);
       this.emit("speaking", user);
 
+      // https://discord.js.org/docs/packages/voice/main/EndBehaviorType:Enum#Manual
+      const end_configuration =
+        AFTER_SILENCE_MSECS > 0
+          ? {
+              behavior: EndBehaviorType.AfterSilence,
+              duration: AFTER_SILENCE_MSECS,
+            }
+          : { behavior: EndBehaviorType.Manual, duration: 1000 };
+
       const audio = this.conn.receiver.subscribe(user, {
-        end: {
-          behavior: EndBehaviorType.AfterSilence,
-          duration: AFTER_SILENCE_MSECS,
-        },
+        end: end_configuration,
       });
 
       // build filename for this recording talkburst
       const time_offset = Date.now() - this.start; // from start of this recording command session
-      const time_prefix = `${time_offset.toString().padStart(8, "0")}`;
-      // const fp = path.join(this.dir, user, `${time_prefix}.wav`)
       const fp = path.join(
         this.dir,
-        `${guild_id}_${user.toString()}_${time_prefix}.wav`,
+        user,
+        `${time_offset.toString().padStart(8, "0")}.wav`,
       );
+      if (!fs.existsSync(path.join(this.dir, user))) {
+        fs.mkdirSync(path.join(this.dir, user), { recursive: true });
+      }
 
-      // create directory for this user if it doesn't exist
-      // if (!fs.existsSync(path.join(this.dir, user))) {
-      //   fs.mkdirSync(path.join(this.dir, user), { recursive: true })
-      // }
+      // const time_prefix = `${time_offset.toString().padStart(8, "0")}`;
+      // const fp = path.join(this.dir, `${guild_id}_${user.toString()}_${time_prefix}.wav`)
 
-      //--- event handler for when speaking ends
+      //------------------ event handler for when speaking ends
       audio.once("end", () => {
-        // logger.info("speaking end", user);
+        logger.info("speaking end", user);
         this.recording.delete(user);
       });
 
-      // step 1 - decode OPUS to PCM
       const transcoder = new prism.opus.Decoder({
         channels: CHANNELS,
         rate: RATE,
         frameSize: 960,
-      });
-
-      // step 2 - write to WAV file
-      const out = new wav.FileWriter(fp, {
+      }); // step 1 - decode OPUS to PCM
+      const filewriter = new wav.FileWriter(fp, {
         sampleRate: RATE,
         channels: CHANNELS,
-      });
+      }); // step 2 - write to WAV file
+      audio.pipe(transcoder).pipe(filewriter); // connect steps 1 and 2
 
-      // connect steps 1 and 2
-      audio.pipe(transcoder).pipe(out);
-
-      // process DONE events
+      //------------------ process DONE events
       out.on("done", () => {
         const metadata = JSON.stringify({
           id: user,
@@ -169,6 +169,18 @@ export class Recorder extends EventEmitter {
         );
         logger.info(user, "talk burst emitted");
       });
+
+      const meta = path.join(this.dir, user, "meta.json");
+      if (!fs.existsSync(meta)) {
+        fs.writeFileSync(
+          meta,
+          JSON.stringify({
+            id: user,
+            name: this.chan.members.get(user)?.displayName ?? user,
+            username: this.chan.members.get(user)?.user.username ?? user,
+          }),
+        );
+      }
     });
 
     //--- event handler for change in connections ---------------------------------------------------------------------
@@ -233,6 +245,8 @@ export class Recorder extends EventEmitter {
   }
 
   protected stopped = false;
+
+  //--------------------------------------------------------------------------------------------------------------------------------
   public stop() {
     if (this.stopped) {
       return;
@@ -250,25 +264,32 @@ export class Recorder extends EventEmitter {
     this.stopped = true;
   }
 
-  //--- old gather function, not used
-  // public gather(): [time: number, user: string, content: string][] {
-  //   const uids = fs.readdirSync(this.dir, { withFileTypes: true }).filter((x) => x.isDirectory())
-  //   const result: [time: number, user: string, content: string][] = []
-  //   for (const uid of uids) {
-  //     const files = fs.readdirSync(path.join(this.dir, uid.name))
-  //     const meta = JSON.parse(fs.readFileSync(path.join(this.dir, uid.name, "meta.json"), "utf-8"))
-  //     for (const file of files) {
-  //       if (!file.endsWith(".txt")) {
-  //         continue
-  //       }
+  //--------------------------------------------------------------------------------------------------------------------------------
+  public gather(): [time: number, user: string, content: string][] {
+    const uids = fs
+      .readdirSync(this.dir, { withFileTypes: true })
+      .filter((x) => x.isDirectory());
+    const result: [time: number, user: string, content: string][] = [];
+    for (const uid of uids) {
+      const files = fs.readdirSync(path.join(this.dir, uid.name));
+      const meta = JSON.parse(
+        fs.readFileSync(path.join(this.dir, uid.name, "meta.json"), "utf-8"),
+      );
+      for (const file of files) {
+        if (!file.endsWith(".txt")) {
+          continue;
+        }
 
-  //       const time = parseInt(file.replace(/\.txt$/, ""))
-  //       const content = fs.readFileSync(path.join(this.dir, uid.name, file), "utf-8")
-  //       result.push([time, meta.name, content])
-  //     }
-  //   }
+        const time = parseInt(file.replace(/\.txt$/, ""));
+        const content = fs.readFileSync(
+          path.join(this.dir, uid.name, file),
+          "utf-8",
+        );
+        result.push([time, meta.name, content]);
+      }
+    }
 
-  //   result.sort((a, b) => a[0] - b[0])
-  //   return result
-  // }
+    result.sort((a, b) => a[0] - b[0]);
+    return result;
+  }
 }

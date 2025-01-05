@@ -11,6 +11,7 @@ import { NonRealTimeVAD, NonRealTimeVADOptions } from "@ricky0123/vad-node";
 import Logger from "@/logger";
 import { CONVEX_SITE_URL } from "@/config";
 import { stopMuseSession } from "./stop";
+import { millisecondsToHumanReadable, ms_to_time } from "@/utils";
 const logger = new Logger("commands");
 
 logger.enable();
@@ -200,7 +201,12 @@ const command: Command = {
             float32Array,
             16000,
           )) {
-            logger.info(time_offset, start, end);
+            logger.info(
+              "VAD chunk: ",
+              millisecondsToHumanReadable(time_offset),
+              start,
+              end,
+            );
             bFoundVADVoice = true;
             break;
             // do stuff with
@@ -209,11 +215,16 @@ const command: Command = {
             //   end (milliseconds into audio where speech ends)
           }
           if (!bFoundVADVoice)
-            logger.info(time_offset + "no speech detected in burst");
+            logger.info(
+              millisecondsToHumanReadable(time_offset) +
+                " " +
+                "no speech detected in burst",
+            );
         }
 
         // upload file to convex, then delete it from local storage
-        if (bFoundVADVoice) {
+        const UPLOAD = false;
+        if (UPLOAD && bFoundVADVoice) {
           uploadFileToConvex(
             wav_filename,
             username,
@@ -234,6 +245,18 @@ const command: Command = {
             .catch((e) => {
               logger.error("Failed to upload " + wav_filename, e);
             });
+        }
+
+        // transcribe
+        let text = "";
+        text = `filename: ${wav_filename} username: ${username} offset: ${ms_to_time(time_offset)}`;
+        if (text) {
+          const fp = wav_filename.replace(/\.wav$/, ".txt");
+          fs.writeFileSync(fp, text);
+          // update live channel
+          // const username = channel.guild.members.cache.get(user_id)?.displayName ?? user_id;
+          // await live_chan.send({ content: `**${username}**: ${text}`, });
+          logger.info(text);
         }
       },
     );

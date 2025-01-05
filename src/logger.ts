@@ -27,10 +27,16 @@ class Logger {
 
   info(...messages: any[]) {
     if (this.enabled) {
-      const msg = `${this.baseNamespace}:info ` + messages;
+      // const msg = `${this.baseNamespace}:info ` + messages;
+      const msg = messages.join(" ");
       console.info(msg);
       axiom.ingest(AXIOM_DATASET, [
-        { level: "info", module: "discorder", msg },
+        {
+          level: "info",
+          module: "discorder",
+          function: this.baseNamespace,
+          msg,
+        },
       ]);
     }
   }
@@ -45,19 +51,33 @@ class Logger {
 
   warn(...messages: any[]) {
     if (this.enabled) {
-      const msg = `${this.baseNamespace}:warn ` + messages;
+      // const msg = `${this.baseNamespace}:warn ` + messages
+      const msg = messages.join(" ");
       console.warn(msg);
       axiom.ingest(AXIOM_DATASET, [
-        { level: "warning", module: "discorder", msg },
+        {
+          level: "warning",
+          module: "discorder",
+          function: this.baseNamespace,
+          msg,
+        },
       ]);
       axiom.flush();
     }
   }
 
   error(...messages: any[]) {
-    const msg = `${this.baseNamespace}:error ` + messages;
+    // const msg = `${this.baseNamespace}:error ` + messages
+    const msg = messages.join(" ");
     debug(msg);
-    axiom.ingest(AXIOM_DATASET, [{ level: "error", module: "discorder", msg }]);
+    axiom.ingest(AXIOM_DATASET, [
+      {
+        level: "error",
+        module: "discorder",
+        function: this.baseNamespace,
+        msg,
+      },
+    ]);
     axiom.flush();
   }
 }
