@@ -22,10 +22,9 @@ logger.enable();
 
 const RATE = 16000;
 const CHANNELS = 1;
-const AFTER_SILENCE_MSECS =
-  process.env.AFTER_SILENCE_MSECS !== undefined
-    ? Number(process.env.AFTER_SILENCE_MSECS)
-    : 1000;
+const AFTER_SILENCE_MSECS = process.env.AFTER_SILENCE_MSECS
+  ? Number(process.env.AFTER_SILENCE_MSECS)
+  : 1000;
 
 logger.info("AFTER_SILENCE_MSECS", AFTER_SILENCE_MSECS);
 logger.info("RATE", RATE);
@@ -108,15 +107,12 @@ export class Recorder extends EventEmitter {
       this.emit("speaking", user);
 
       // https://discord.js.org/docs/packages/voice/main/EndBehaviorType:Enum#Manual
-      const configuration =
-        AFTER_SILENCE_MSECS > 0
-          ? {
-              behavior: EndBehaviorType.AfterSilence,
-              duration: AFTER_SILENCE_MSECS,
-            }
-          : { behavior: EndBehaviorType.Manual, duration: 1000 };
-
-      const audio = this.conn.receiver.subscribe(user, { end: configuration });
+      const configuration1 = {
+        behavior: EndBehaviorType.AfterSilence,
+        duration: AFTER_SILENCE_MSECS,
+      };
+      const configuration2 = { behavior: EndBehaviorType.Manual as const };
+      const audio = this.conn.receiver.subscribe(user, { end: configuration2 });
 
       // build filename for this recording talkburst
       const time_offset = Date.now() - this.start; // from start of this recording command session
