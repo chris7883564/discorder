@@ -107,7 +107,7 @@ export class RecorderStream extends EventEmitter {
         end: { behavior: EndBehaviorType.Manual },
       });
       audioStream.on("data", (data) => {
-        logger.info("data", data);
+        logger.info("data", data.length);
       });
       audioStream.on("close", () => {
         logger.info("close");
@@ -135,7 +135,19 @@ export class RecorderStream extends EventEmitter {
         .audioCodec("libmp3lame")
         .audioBitrate(128)
         .format("mp3")
-        .pipe(passThrough);
+        .pipe(passThrough)
+        .on("error", (err) => {
+          logger.error("ffmpeg error", err);
+        })
+        .on("end", () => {
+          logger.info("ffmpeg end");
+        })
+        .on("close", () => {
+          logger.info("ffmpeg close");
+        })
+        .on("data", (data: any) => {
+          logger.info("ffmpeg data", data.length);
+        });
 
       const writeStream = fs.createWriteStream(outputFilePath);
       passThrough.pipe(writeStream);
