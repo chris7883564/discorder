@@ -22,9 +22,10 @@ logger.enable();
 
 const RATE = 16000;
 const CHANNELS = 1;
-const AFTER_SILENCE_MSECS = process.env.AFTER_SILENCE_MSECS
-  ? Number(process.env.AFTER_SILENCE_MSECS)
-  : 1000;
+const AFTER_SILENCE_MSECS =
+  process.env.AFTER_SILENCE_MSECS !== undefined
+    ? Number(process.env.AFTER_SILENCE_MSECS)
+    : 1000;
 
 logger.info("AFTER_SILENCE_MSECS", AFTER_SILENCE_MSECS);
 logger.info("RATE", RATE);
