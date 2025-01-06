@@ -108,6 +108,10 @@ export class RecorderStream extends EventEmitter {
       });
 
       const outputFilePath = `./recordings/${user}-${Date.now()}.pcm`;
+      if (!fs.existsSync(outputFilePath)) {
+        fs.mkdirSync(outputFilePath, { recursive: true });
+      }
+
       const writeStream = fs.createWriteStream(outputFilePath);
 
       ffmpeg(audioStream)
