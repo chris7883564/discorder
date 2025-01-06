@@ -19,75 +19,12 @@ logger.enable();
 
 //---------------------------------------------------------------------
 export const client = new Client({
-  intents: [
-    "GuildVoiceStates",
-    "Guilds",
-    "GuildMembers",
-    GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildVoiceStates,
-  ],
+  intents: ["GuildVoiceStates", "Guilds", "GuildMembers"],
 });
 
 //---------------------------------------------------------------------
 client.on("ready", () => {
   logger.info(`client logged in as ${client.user?.tag}`);
-});
-
-client.once("__ready", async () => {
-  console.log(`Logged in as ${client.user?.tag}`);
-
-  const guild = await client.guilds.fetch(GUILD_ID);
-  const channel = guild.channels.cache.get(CHANNEL_ID);
-
-  if (!channel || channel.type !== 2) {
-    // Ensure it's a voice channel
-    console.error("Invalid channel specified");
-    return;
-  }
-
-  console.info("Joining voice channel...");
-  const connection = joinVoiceChannel({
-    channelId: CHANNEL_ID,
-    guildId: GUILD_ID,
-    adapterCreator: guild.voiceAdapterCreator,
-  });
-  const receiver = connection.receiver;
-
-  // Start listening for incoming audio streams
-  console.info("Listening for audio...");
-  connection.on("stateChange", (oldState: any, newState: any) => {
-    console.log(
-      `Connection state changed: ${oldState.status} -> ${newState.status}`,
-    );
-  });
-
-  receiver.speaking.on("start", (userId: any) => {
-    console.log(`Receiving audio from user: ${userId}`);
-
-    const audioStream = receiver.subscribe(userId, {
-      end: {
-        behavior: AudioReceiveStream.EndBehaviorType.Manual,
-      },
-    });
-
-    const outputFilePath = `./recordings/${userId}-${Date.now()}.pcm`;
-    const writeStream = fs.createWriteStream(outputFilePath);
-
-    ffmpeg(audioStream)
-      .setFfmpegPath(ffmpegPath)
-      .inputFormat("s16le")
-      .audioCodec("libmp3lame")
-      .audioBitrate(128)
-      .saveToFile(outputFilePath)
-      .on("end", () => {
-        console.log(`Audio saved to ${outputFilePath}`);
-      })
-      .on("error", (err: any) => {
-        console.error(`Error saving audio: ${err.message}`);
-      });
-
-    audioStream.pipe(writeStream);
-  });
 });
 
 //---------------------------------------------------------------------
