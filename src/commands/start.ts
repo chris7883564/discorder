@@ -1,7 +1,7 @@
 import debug from "debug";
 import fs from "node:fs";
 import { joinVoiceChannel } from "@discordjs/voice";
-import { add, tasks } from "../recorder";
+import { add, add_stream, tasks } from "../recorder";
 import { uploadFileToConvex } from "../recorder/convexuploader";
 import type { Command } from "./types";
 
@@ -129,7 +129,7 @@ const command: Command = {
       debug: true,
     });
 
-    // START
+    // TELL MUSE WE ARE STARTING
     // connect to muse convex database and create a new session
     const payload = JSON.stringify({
       gamePIN: gamePIN,
@@ -159,7 +159,7 @@ const command: Command = {
     // start the recorder object
     // save the session_id
 
-    const recorder = add(session_id, conn, channel, interaction.member);
+    const recorder = add_stream(session_id, conn, channel, interaction.member);
 
     // log file structure for debugging
     // showDirectoryStructure()

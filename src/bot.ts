@@ -29,11 +29,11 @@ export const client = new Client({
 });
 
 //---------------------------------------------------------------------
-// client.on("ready", () => {
-//   logger.info(`client logged in as ${client.user?.tag}`);
-// });
+client.on("ready", () => {
+  logger.info(`client logged in as ${client.user?.tag}`);
+});
 
-client.once("ready", async () => {
+client.once("__ready", async () => {
   console.log(`Logged in as ${client.user?.tag}`);
 
   const guild = await client.guilds.fetch(GUILD_ID);
