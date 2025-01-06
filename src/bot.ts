@@ -4,8 +4,7 @@ import { commands } from "./commands";
 import { GatewayIntentBits } from "discord.js";
 import { joinVoiceChannel, AudioReceiveStream } from "@discordjs/voice";
 
-const fs = require("fs");
-
+import fs from "fs";
 import ffmpeg from "fluent-ffmpeg";
 import ffmpegPath from "ffmpeg-static";
 
