@@ -1,15 +1,5 @@
-import { Client, VoiceState } from "discord.js";
+import { Client } from "discord.js";
 import { commands } from "./commands";
-
-import { GatewayIntentBits } from "discord.js";
-import { joinVoiceChannel, AudioReceiveStream } from "@discordjs/voice";
-
-import fs from "fs";
-import ffmpeg from "fluent-ffmpeg";
-import ffmpegPath from "ffmpeg-static";
-
-import { GUILD_ID } from "./config";
-const CHANNEL_ID = "1225376114818420761";
 
 //---------------------------------------------------------------------
 import Logger from "@/logger";
