@@ -7,7 +7,7 @@ import type {
   VoiceState,
 } from "discord.js";
 import { EventEmitter } from "node:events";
-import fs from "node:fs";
+import fs, { stat } from "node:fs";
 import path from "node:path";
 import prism from "prism-media";
 import wav from "wav";
@@ -19,6 +19,7 @@ import ffmpeg from "fluent-ffmpeg";
 import ffmpegPath from "ffmpeg-static";
 
 import Logger from "@/logger";
+import { PassThrough } from "node:stream";
 const logger = new Logger("recorder");
 logger.enable();
 
@@ -94,7 +95,6 @@ export class RecorderStream extends EventEmitter {
       if (this.chan.members.get(user)?.user.bot) {
         return;
       }
-
       if (this.recording.has(user)) {
         return;
       }
@@ -106,33 +106,46 @@ export class RecorderStream extends EventEmitter {
       const audioStream = this.conn.receiver.subscribe(user, {
         end: { behavior: EndBehaviorType.Manual },
       });
+      audioStream.on("data", (data) => {
+        logger.info("data", data);
+      });
+      audioStream.on("close", () => {
+        logger.info("close");
+      });
+      audioStream.on("error", () => {
+        logger.error("error");
+      });
+
+      audioStream.once("end", () => {
+        logger.info("speaking end", user);
+        this.recording.delete(user);
+      });
 
       const outputDir = path.join(this.dir);
       if (!fs.existsSync(outputDir)) {
         fs.mkdirSync(outputDir, { recursive: true });
       }
 
-      const outputFilePath = `${outputDir}/${user}-${Date.now()}.pcm`;
-      const writeStream = fs.createWriteStream(outputFilePath);
+      const outputFilePath = `${outputDir}/${user}-${Date.now()}.mp3`;
+      const passThrough = new PassThrough();
 
       ffmpeg(audioStream)
         .setFfmpegPath(ffmpegPath)
         .inputFormat("s16le")
         .audioCodec("libmp3lame")
         .audioBitrate(128)
-        .saveToFile(outputFilePath)
-        .on("end", () => {
-          console.log(`Audio saved to ${outputFilePath}`);
-        })
-        .on("error", (err) => {
-          console.error(`Error saving audio: ${err.message}`);
-        });
+        .format("mp3")
+        .pipe(passThrough);
 
-      audioStream.pipe(writeStream);
+      const writeStream = fs.createWriteStream(outputFilePath);
+      passThrough.pipe(writeStream);
 
-      audioStream.once("end", () => {
-        logger.info("speaking end", user);
-        this.recording.delete(user);
+      writeStream.on("finish", () => {
+        logger.info(`Audio saved for user ${user} at ${outputFilePath}`);
+      });
+
+      writeStream.on("error", (err) => {
+        logger.error(`Error saving audio for user ${user}:`, err);
       });
     });
 
