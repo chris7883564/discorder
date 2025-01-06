@@ -2,17 +2,12 @@ import { Client, VoiceState } from "discord.js";
 import { commands } from "./commands";
 
 import { GatewayIntentBits } from "discord.js";
-const {
-  joinVoiceChannel,
-  getVoiceConnection,
-  createAudioPlayer,
-  createAudioResource,
-  AudioReceiveStream,
-  VoiceReceiver,
-} = require("@discordjs/voice");
+import { joinVoiceChannel, AudioReceiveStream } from "@discordjs/voice";
+
 const fs = require("fs");
-const ffmpeg = require("fluent-ffmpeg");
-const ffmpegPath = require("ffmpeg-static");
+
+import ffmpeg from "fluent-ffmpeg";
+import ffmpegPath from "ffmpeg-static";
 
 import { GUILD_ID } from "./config";
 const CHANNEL_ID = "1225376114818420761";
