@@ -223,8 +223,7 @@ const command: Command = {
         }
 
         // upload file to convex, then delete it from local storage
-        const UPLOAD = true;
-        if (UPLOAD && bFoundVADVoice) {
+        if (bFoundVADVoice) {
           uploadFileToConvex(
             wav_filename,
             username,
