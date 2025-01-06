@@ -23,14 +23,20 @@ export function millisecondsToHumanReadable(milliseconds: number): string {
   return `${daysStr}${hoursStr}${minutesStr}${secondsStr}`.trim();
 }
 
-export function ms_to_time(ms: number) {
+/**
+ * Converts milliseconds to a time string in the format HH:MM:SS:xxxx.
+ * @param ms - The number of milliseconds to convert.
+ * @returns A string representing the time in HH:MM:SS:xxxx format.
+ */
+export function ms_to_time(ms: number): string {
+  const milliseconds = ms % 1000;
   const seconds = Math.floor((ms / 1000) % 60);
   const minutes = Math.floor((ms / (1000 * 60)) % 60);
   const hours = Math.floor((ms / (1000 * 60 * 60)) % 24);
 
   return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds
     .toString()
-    .padStart(2, "0")}`;
+    .padStart(2, "0")}:${milliseconds.toString().padStart(4, "0")}`;
 }
 
 /**
