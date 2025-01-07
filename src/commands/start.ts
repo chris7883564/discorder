@@ -10,7 +10,8 @@ import { NonRealTimeVAD, NonRealTimeVADOptions } from "@ricky0123/vad-node";
 import Logger from "@/logger";
 import { CONVEX_SITE_URL } from "@/config";
 import { stopMuseSession } from "./stop";
-import { millisecondsToHumanReadable, ms_to_time } from "@/utils";
+import { ms_to_time } from "@/utils";
+import { log } from "node:console";
 const logger = new Logger("commands");
 
 logger.enable();
@@ -204,24 +205,19 @@ const command: Command = {
             float32Array,
             16000,
           )) {
-            logger.info(
-              "VAD chunk: ",
-              millisecondsToHumanReadable(time_offset),
-              start,
-              end,
-            );
+            logger.info("VAD chunk: ", ms_to_time(time_offset), start, end);
             bFoundVADVoice = true;
-            break;
+            // TODO: here we assume any voice in the first detected chunk means the whole thing is voice
+            // we could remove non-voice VAD chunks in future
             // do stuff with
             //   audio (float32array of audio)
             //   start (milliseconds into audio where speech starts)
             //   end (milliseconds into audio where speech ends)
+            break;
           }
           if (!bFoundVADVoice)
             logger.info(
-              millisecondsToHumanReadable(time_offset) +
-                " " +
-                "no speech detected in burst",
+              ms_to_time(time_offset) + " " + "no speech detected in burst",
             );
         }
 
@@ -238,11 +234,12 @@ const command: Command = {
           )
             .then(() => {
               // delete the file after upload, even if the upload fails (lost forever)
-              fs.unlink(wav_filename, (err) => {
-                if (err) {
-                  logger.error("Failed to delete " + wav_filename, err);
-                }
-              });
+              logger.info("Deleting " + wav_filename);
+              fs.unlink(
+                wav_filename,
+                (err) =>
+                  err && logger.error(`Failed to delete ${wav_filename}`, err),
+              );
             })
             .catch((e) => {
               logger.error("Failed to upload " + wav_filename, e);

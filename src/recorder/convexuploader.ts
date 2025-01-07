@@ -42,15 +42,18 @@ export async function uploadFileToConvex(
     uploadURL.searchParams.set("talker_id", talker_id);
     uploadURL.searchParams.set("channel_id", channel_id);
     uploadURL.searchParams.set("time_offset", String(time_offset));
-    logger.info(filename);
-    logger.info(uploadURL.href);
+    logger.info("POST ", uploadURL.href);
 
     const result = await fetch(uploadURL, {
       method: "POST",
       headers: { "Content-Type": "audio/wav" },
       body: new Uint8Array(file.buffer), // was file.buffer
     });
-    logger.info(result.status, file.buffer.byteLength);
+    logger.info(
+      result.status,
+      result.statusText,
+      `wrote ${file.buffer.byteLength} bytes`,
+    );
   } catch (e) {
     logger.error("error: ", e);
   }

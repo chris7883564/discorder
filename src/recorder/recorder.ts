@@ -103,7 +103,7 @@ export class Recorder extends EventEmitter {
         return;
       }
       this.recording.add(user);
-      logger.info("speaking start", user);
+      logger.info(user, "speaking start");
       this.emit("speaking", user);
 
       // https://discord.js.org/docs/packages/voice/main/EndBehaviorType:Enum#Manual
@@ -130,7 +130,7 @@ export class Recorder extends EventEmitter {
 
       //------------------ event handler for when speaking ends
       audio.once("end", () => {
-        logger.info("speaking end", user);
+        logger.info(user, "speaking end");
         this.recording.delete(user);
       });
 

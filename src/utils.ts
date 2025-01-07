@@ -9,19 +9,19 @@ const logger = new Logger("directory-logger");
  * @param milliseconds - The number of milliseconds to convert.
  * @returns A string representing the time in a human-readable format.
  */
-export function millisecondsToHumanReadable(milliseconds: number): string {
-  const seconds = Math.floor((milliseconds / 1000) % 60);
-  const minutes = Math.floor((milliseconds / (1000 * 60)) % 60);
-  const hours = Math.floor((milliseconds / (1000 * 60 * 60)) % 24);
-  const days = Math.floor(milliseconds / (1000 * 60 * 60 * 24));
+// export function millisecondsToHumanReadable(milliseconds: number): string {
+//   const seconds = Math.floor((milliseconds / 1000) % 60);
+//   const minutes = Math.floor((milliseconds / (1000 * 60)) % 60);
+//   const hours = Math.floor((milliseconds / (1000 * 60 * 60)) % 24);
+//   const days = Math.floor(milliseconds / (1000 * 60 * 60 * 24));
 
-  const daysStr = days > 0 ? `${days}d ` : "";
-  const hoursStr = hours > 0 ? `${hours}h ` : "";
-  const minutesStr = minutes > 0 ? `${minutes}m ` : "";
-  const secondsStr = seconds > 0 ? `${seconds}s` : "";
+//   const daysStr = days > 0 ? `${days}d ` : "";
+//   const hoursStr = hours > 0 ? `${hours}h ` : "";
+//   const minutesStr = minutes > 0 ? `${minutes}m ` : "";
+//   const secondsStr = seconds > 0 ? `${seconds}s` : "";
 
-  return `${daysStr}${hoursStr}${minutesStr}${secondsStr}`.trim();
-}
+//   return `${daysStr}${hoursStr}${minutesStr}${secondsStr}`.trim();
+// }
 
 /**
  * Converts milliseconds to a time string in the format HH:MM:SS:xxxx.
@@ -34,9 +34,7 @@ export function ms_to_time(ms: number): string {
   const minutes = Math.floor((ms / (1000 * 60)) % 60);
   const hours = Math.floor((ms / (1000 * 60 * 60)) % 24);
 
-  return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds
-    .toString()
-    .padStart(2, "0")}:${milliseconds.toString().padStart(4, "0")}`;
+  return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}:${milliseconds.toString().padStart(4, "0")}`;
 }
 
 /**
