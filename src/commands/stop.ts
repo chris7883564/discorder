@@ -34,12 +34,12 @@ export const stopMuseSession = async (
 
   const payload = JSON.stringify({ session_id: recorder?.session_id });
   const url = CONVEX_SITE_URL + "/discord/stop";
+  logger.info("POST", url, payload);
   const response = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: payload,
   });
-  logger.info("POST", response.url);
   logger.http(response);
   if (!response.ok) {
     const msg = `Sorry, something went wrong when I tried to disconnect.  Make sure everyone leaves the room, and I will disconnect automatically. ${response.status} ${response.statusText}`;
