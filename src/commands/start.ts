@@ -1,4 +1,3 @@
-import debug from "debug";
 import fs from "node:fs";
 import { joinVoiceChannel } from "@discordjs/voice";
 import { add, tasks } from "../recorder";
@@ -123,6 +122,7 @@ const command: Command = {
     const conn = joinVoiceChannel({
       channelId: channel.id,
       guildId: channel.guild.id,
+      // @ts-expect-error
       adapterCreator: channel.guild.voiceAdapterCreator,
       selfDeaf: false,
       selfMute: true,

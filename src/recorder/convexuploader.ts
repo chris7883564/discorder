@@ -48,7 +48,7 @@ export async function uploadFileToConvex(
     const result = await fetch(uploadURL, {
       method: "POST",
       headers: { "Content-Type": "audio/wav" },
-      body: file.buffer,
+      body: new Uint8Array(file.buffer), // was file.buffer
     });
     logger.info(result.status, file.buffer.byteLength);
   } catch (e) {
