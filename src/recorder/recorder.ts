@@ -14,8 +14,6 @@ import wav from "wav";
 import { RECORDING_DIR } from "../config";
 import { stopMuseSession } from "@/commands/stop";
 
-// import { uploadFileToConvex } from "./convexuploader";
-
 import Logger from "@/logger";
 const logger = new Logger("recorder");
 logger.enable();
@@ -39,7 +37,7 @@ export class Recorder extends EventEmitter {
   public guild: Guild;
   protected dir: string;
   protected interval: NodeJS.Timeout | null = null;
-  protected recording = new Set<string>();
+  protected active_talkers = new Set<string>();
 
   constructor(
     session_id: string,
@@ -99,10 +97,10 @@ export class Recorder extends EventEmitter {
       // 	return;
       // }
 
-      if (this.recording.has(user)) {
+      if (this.active_talkers.has(user)) {
         return;
       }
-      this.recording.add(user);
+      this.active_talkers.add(user);
       logger.info(user, "speaking start");
       this.emit("speaking", user);
 
@@ -131,7 +129,7 @@ export class Recorder extends EventEmitter {
       //------------------ event handler for when speaking ends
       audio.once("end", () => {
         logger.info(user, "speaking end");
-        this.recording.delete(user);
+        this.active_talkers.delete(user);
       });
 
       const transcoder = new prism.opus.Decoder({

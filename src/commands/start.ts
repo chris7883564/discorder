@@ -163,9 +163,6 @@ const command: Command = {
 
     const recorder = add(session_id, conn, channel, interaction.member);
 
-    // log file structure for debugging
-    // showDirectoryStructure()
-
     // VAD setup
     const options: Partial<NonRealTimeVADOptions> = {};
     const myvad = await NonRealTimeVAD.new(options);
