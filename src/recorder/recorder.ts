@@ -13,10 +13,22 @@ import prism from "prism-media";
 import wav from "wav";
 import { RECORDING_DIR } from "../config";
 import { stopMuseSession } from "@/commands/stop";
+import { NonRealTimeVAD, NonRealTimeVADOptions } from "@ricky0123/vad-node";
+import { uploadFileToConvex } from "../recorder/convexuploader";
 
 import Logger from "@/logger";
+import { ms_to_time } from "@/utils";
 const logger = new Logger("recorder");
 logger.enable();
+
+// VAD CONTROL
+if (!process.env.USE_VAD) {
+  throw new Error("USE_VAD is not set");
+}
+const USE_VAD = process.env.USE_VAD;
+const vad_options: Partial<NonRealTimeVADOptions> = {};
+
+logger.info("USE_VAD", USE_VAD);
 
 const RATE = 16000;
 const CHANNELS = 1;
@@ -38,6 +50,18 @@ export class Recorder extends EventEmitter {
   protected dir: string;
   protected interval: NodeJS.Timeout | null = null;
   protected active_talkers = new Set<string>();
+  private myvad: NonRealTimeVAD | undefined;
+
+  // Method to initialize VAD
+  async initializeVAD(vad_options: Partial<NonRealTimeVADOptions>) {
+    try {
+      // VAD setup
+      this.myvad = await NonRealTimeVAD.new(vad_options);
+      console.log("VAD initialized successfully");
+    } catch (error) {
+      console.error("Error initializing VAD:", error);
+    }
+  }
 
   constructor(
     session_id: string,
@@ -52,6 +76,7 @@ export class Recorder extends EventEmitter {
     this.chan = chan;
     this.user = user;
     this.guild = chan.guild;
+    this.initializeVAD(vad_options);
 
     this.start = Date.now();
 
@@ -105,12 +130,12 @@ export class Recorder extends EventEmitter {
       this.emit("speaking", user);
 
       // https://discord.js.org/docs/packages/voice/main/EndBehaviorType:Enum#Manual
-      const configuration1 = {
-        behavior: EndBehaviorType.AfterSilence,
-        duration: AFTER_SILENCE_MSECS,
-      };
-      const configuration2 = { behavior: EndBehaviorType.Manual as const };
-      const audio = this.conn.receiver.subscribe(user, { end: configuration1 });
+      const audio = this.conn.receiver.subscribe(user, {
+        end: {
+          behavior: EndBehaviorType.AfterSilence,
+          duration: AFTER_SILENCE_MSECS,
+        },
+      });
 
       // build filename for this recording talkburst
       const time_offset = Date.now() - this.start; // from start of this recording command session
@@ -132,34 +157,25 @@ export class Recorder extends EventEmitter {
         this.active_talkers.delete(user);
       });
 
+      // step 1 - decode OPUS to PCM
       const transcoder = new prism.opus.Decoder({
         channels: CHANNELS,
         rate: RATE,
         frameSize: 960,
-      }); // step 1 - decode OPUS to PCM
+      });
+
+      // step 2 - write to WAV file
       const filewriter = new wav.FileWriter(fp, {
         sampleRate: RATE,
         channels: CHANNELS,
-      }); // step 2 - write to WAV file
-      audio.pipe(transcoder).pipe(filewriter); // connect steps 1 and 2
+      });
+
+      // connect steps 1 and 2
+      audio.pipe(transcoder).pipe(filewriter);
 
       //------------------ process DONE events
       filewriter.on("done", () => {
-        const metadata = JSON.stringify({
-          id: user,
-          name: this.chan.members.get(user)?.displayName ?? user,
-          username: this.chan.members.get(user)?.user.username ?? user,
-        });
-        this.emit(
-          "recorded",
-          fp,
-          user,
-          time_offset,
-          this.session_id,
-          this.chan.guild.id,
-          this.chan.id,
-          metadata,
-        );
+        this.emit("recorded", fp, user, time_offset, this.session_id);
         logger.info(user, "talk burst emitted");
       });
 
@@ -176,15 +192,104 @@ export class Recorder extends EventEmitter {
       }
     });
 
+    //----- event handler for when recording is done
+    //
+
+    this.on(
+      "recorded",
+      async (
+        wav_filename: string,
+        user_id: string,
+        time_offset: number,
+        session_id: string,
+      ) => {
+        // arrives with the file already written to disk
+
+        const username =
+          this.chan.guild.members.cache.get(user_id)?.displayName ?? user_id;
+        const name =
+          this.chan.guild.members.cache.get(user_id)?.user.username ?? user_id;
+        logger.info(username, name);
+
+        //
+        // VAD
+        //
+        let bFoundVoice = !USE_VAD; // default to true if there's no VAD in use
+        if (USE_VAD && this.myvad) {
+          const fb = await fs.readFileSync(wav_filename);
+          // Convert Buffer to Float32Array
+          const float32Array = new Float32Array(
+            fb.buffer,
+            fb.byteOffset,
+            fb.byteLength / Float32Array.BYTES_PER_ELEMENT,
+          );
+          for await (const { audio, start, end } of this.myvad.run(
+            float32Array,
+            16000,
+          )) {
+            logger.info("VAD chunk: ", ms_to_time(time_offset), start, end);
+            bFoundVoice = true;
+            // TODO: here we assume any voice in the first detected chunk means the whole thing is voice
+            // we could remove non-voice VAD chunks in future
+            // do stuff with
+            //   audio (float32array of audio)
+            //   start (milliseconds into audio where speech starts)
+            //   end (milliseconds into audio where speech ends)
+            break;
+          }
+        }
+
+        // delete the file if no speech detected
+        if (!bFoundVoice) {
+          logger.info(
+            ms_to_time(time_offset) + " " + "no speech detected in burst",
+          );
+          logger.info("Deleting " + wav_filename);
+          fs.unlink(
+            wav_filename,
+            (err) =>
+              err && logger.error(`Failed to delete ${wav_filename}`, err),
+          );
+          return;
+        }
+
+        // at this point, we have a valid voice burst
+        // we can now upload to convex and transcribe
+
+        // 1. upload to convex
+        uploadFileToConvex(
+          wav_filename,
+          username,
+          session_id,
+          user_id,
+          time_offset,
+          this.chan.guild.id,
+          this.chan.id,
+        )
+          .then(() => {
+            // upload success
+          })
+          .catch((e) => {
+            logger.error("Failed to upload " + wav_filename, e);
+          });
+
+        // "transcribe and send back to live channel"
+        let text = `filename: ${wav_filename} username: ${username} offset: ${ms_to_time(time_offset)}`;
+        const fp = wav_filename.replace(/\.wav$/, ".txt");
+        fs.writeFileSync(fp, text);
+        // update live channel
+        // const username = channel.guild.members.cache.get(user_id)?.displayName ?? user_id;
+        // await live_chan.send({ content: `**${username}**: ${text}`, });
+        logger.info(text);
+      },
+    );
+
     //--- event handler for change in connections ---------------------------------------------------------------------
     const client = this.chan.client;
     client.on("voiceStateUpdate", (old: VoiceState, cur: VoiceState) => {
-      // process channel state
-      //
-      logger.info(
-        `voiceStateUpdate event: old.channelId=${old.channelId}, cur.channelId=${cur.channelId}, this.chan.id=${this.chan.id}` +
-          `old.member.id=${old.member?.id} this.user.id=${this.user.id}`,
-      );
+      logger.info(`voiceStateUpdate: from: ${old} `);
+      logger.info(`voiceStateUpdate: to: ${cur} `);
+
       // if (old.channelId === null && this.chan.id) {
       //   logger.info("new channelId detected: could auto start");
       //   return;
@@ -202,10 +307,10 @@ export class Recorder extends EventEmitter {
       // process member state
       //
       // does this event relate to this userId
-      if (old.member?.id !== this.user.id) {
-        logger.warn("voiceStateUpdate event: memberId changed");
-        return;
-      }
+      // if (old.member?.id !== this.user.id) {
+      //   logger.warn("voiceStateUpdate event: memberId changed");
+      //   return;
+      // }
     });
 
     //--- check once per second for connection destroyed status ---------------------------------------------------------------------

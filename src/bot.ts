@@ -61,11 +61,10 @@ client.on("guildDelete", async (guild) => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
+    logger.http(response);
     if (!response.ok) {
-      logger.error(response.status, response.statusText);
       throw new Error(response.statusText);
     }
-    logger.http(response);
   } catch (error) {
     logger.error("guildDelete error: ", error);
   }

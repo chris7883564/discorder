@@ -1,27 +1,15 @@
 import fs from "node:fs";
 import { joinVoiceChannel } from "@discordjs/voice";
 import { add, tasks } from "../recorder";
-import { uploadFileToConvex } from "../recorder/convexuploader";
 import type { Command } from "./types";
-
-import { NonRealTimeVAD, NonRealTimeVADOptions } from "@ricky0123/vad-node";
 
 //---------------------------------------------------------------------
 import Logger from "@/logger";
 import { CONVEX_SITE_URL } from "@/config";
 import { stopMuseSession } from "./stop";
-import { ms_to_time } from "@/utils";
-import { log } from "node:console";
 const logger = new Logger("commands");
 
 logger.enable();
-
-// VAD CONTROL
-if (!process.env.USE_VAD) {
-  throw new Error("USE_VAD is not set");
-}
-const USE_VAD = process.env.USE_VAD;
-logger.info("USE_VAD", USE_VAD);
 
 //---------------------------------------------------------------------
 const command: Command = {
@@ -163,97 +151,7 @@ const command: Command = {
 
     const recorder = add(session_id, conn, channel, interaction.member);
 
-    // VAD setup
-    const options: Partial<NonRealTimeVADOptions> = {};
-    const myvad = await NonRealTimeVAD.new(options);
-
-    //----- event handler for when recording is done
-    //
-    recorder.on(
-      "recorded",
-      async (
-        wav_filename: string,
-        user_id: string,
-        time_offset: number,
-        session_id: string,
-        guild_id: string,
-        channel_id: string,
-        metadata: string,
-      ) => {
-        //
-        const username =
-          channel.guild.members.cache.get(user_id)?.displayName ?? user_id;
-
-        //
-        // VAD
-        //
-        let bFoundVADVoice = !USE_VAD; // default to true if there's no VAD in use
-        if (USE_VAD) {
-          const fileBuffer = await fs.readFileSync(wav_filename);
-          // Convert Buffer to Float32Array
-          const float32Array = new Float32Array(
-            fileBuffer.buffer,
-            fileBuffer.byteOffset,
-            fileBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT,
-          );
-          for await (const { audio, start, end } of myvad.run(
-            float32Array,
-            16000,
-          )) {
-            logger.info("VAD chunk: ", ms_to_time(time_offset), start, end);
-            bFoundVADVoice = true;
-            // TODO: here we assume any voice in the first detected chunk means the whole thing is voice
-            // we could remove non-voice VAD chunks in future
-            // do stuff with
-            //   audio (float32array of audio)
-            //   start (milliseconds into audio where speech starts)
-            //   end (milliseconds into audio where speech ends)
-            break;
-          }
-          if (!bFoundVADVoice)
-            logger.info(
-              ms_to_time(time_offset) + " " + "no speech detected in burst",
-            );
-        }
-
-        // upload file to convex, then delete it from local storage
-        if (bFoundVADVoice) {
-          uploadFileToConvex(
-            wav_filename,
-            username,
-            session_id,
-            user_id,
-            time_offset,
-            guild_id,
-            channel_id,
-          )
-            .then(() => {
-              // delete the file after upload, even if the upload fails (lost forever)
-              logger.info("Deleting " + wav_filename);
-              fs.unlink(
-                wav_filename,
-                (err) =>
-                  err && logger.error(`Failed to delete ${wav_filename}`, err),
-              );
-            })
-            .catch((e) => {
-              logger.error("Failed to upload " + wav_filename, e);
-            });
-        }
-
-        // transcribe
-        let text = "";
-        text = `filename: ${wav_filename} username: ${username} offset: ${ms_to_time(time_offset)}`;
-        if (text) {
-          const fp = wav_filename.replace(/\.wav$/, ".txt");
-          fs.writeFileSync(fp, text);
-          // update live channel
-          // const username = channel.guild.members.cache.get(user_id)?.displayName ?? user_id;
-          // await live_chan.send({ content: `**${username}**: ${text}`, });
-          logger.info(text);
-        }
-      },
-    );
+    // GABAE
 
     // await interaction.reply(`Recording has started.`);
     await interaction.followUp(
