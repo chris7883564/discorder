@@ -18,6 +18,7 @@ import { uploadFileToConvex } from "../recorder/convexuploader";
 
 import Logger from "@/logger";
 import { ms_to_time } from "@/utils";
+import { VADProcessor } from "./vad";
 const logger = new Logger("recorder");
 logger.enable();
 
@@ -51,6 +52,7 @@ export class Recorder extends EventEmitter {
   protected interval: NodeJS.Timeout | null = null;
   protected active_talkers = new Set<string>();
   private myvad: NonRealTimeVAD | undefined;
+  private vadProcessor: VADProcessor;
 
   // Method to initialize VAD
   async initializeVAD(vad_options: Partial<NonRealTimeVADOptions>) {
@@ -76,6 +78,8 @@ export class Recorder extends EventEmitter {
     this.chan = chan;
     this.user = user;
     this.guild = chan.guild;
+
+    this.vadProcessor = new VADProcessor(USE_VAD === "true", vad_options);
     this.initializeVAD(vad_options);
 
     this.start = Date.now();
@@ -197,6 +201,43 @@ export class Recorder extends EventEmitter {
 
     this.on(
       "recorded",
+      async (wav_filename, user_id, time_offset, session_id) => {
+        const result = await this.vadProcessor.processAudio(wav_filename, RATE);
+
+        if (!result.hasVoice) {
+          logger.info(
+            `${ms_to_time(time_offset)} no speech detected in burst. Deleting ${wav_filename}`,
+          );
+          fs.unlink(
+            wav_filename,
+            (err) =>
+              err && logger.error(`Failed to delete ${wav_filename}`, err),
+          );
+          return;
+        }
+
+        logger.info(`Valid voice burst detected in ${wav_filename}`);
+
+        const username =
+          this.chan.guild.members.cache.get(user_id)?.displayName ?? user_id;
+
+        // Upload and further processing...
+        uploadFileToConvex(
+          wav_filename,
+          username,
+          session_id,
+          user_id,
+          time_offset,
+          this.chan.guild.id,
+          this.chan.id,
+        )
+          .then(() => logger.info(`Uploaded ${wav_filename}`))
+          .catch((e) => logger.error(`Failed to upload ${wav_filename}`, e));
+      },
+    );
+
+    this.on(
+      "recorded_org",
       async (
         wav_filename: string,
         user_id: string,
