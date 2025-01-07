@@ -145,7 +145,7 @@ const command: Command = {
       headers: { "Content-Type": "application/json" },
       body: payload,
     });
-    logger.info(response.status, response.statusText);
+    logger.http(response);
     if (!response.ok) {
       const msg = `Sorry, I was unable to connect to your game session. ${response.status} ${response.statusText}`;
       // await interaction.reply(msg);

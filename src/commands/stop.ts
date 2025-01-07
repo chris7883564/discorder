@@ -38,14 +38,13 @@ export const stopMuseSession = async (
     headers: { "Content-Type": "application/json" },
     body: payload,
   });
-
+  logger.http(response);
   if (!response.ok) {
     const msg = `Sorry, something went wrong when I tried to disconnect.  Make sure everyone leaves the room, and I will disconnect automatically. ${response.status} ${response.statusText}`;
-    logger.error(msg);
     // await interaction.reply(msg);
     // throw new Error("Failed to stop session with Muse service");
     return msg;
-  } else logger.info(`${response.status} ${response.statusText}`);
+  }
 
   return null;
 };

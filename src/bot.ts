@@ -44,7 +44,7 @@ client.on("guildCreate", async (guild) => {
     if (!response.ok) {
       throw new Error(response.statusText);
     }
-    logger.info(response.statusText);
+    logger.http(response);
   } catch (error) {
     logger.error("guildCreate error: ", error);
   }
@@ -65,7 +65,7 @@ client.on("guildDelete", async (guild) => {
       logger.error(response.status, response.statusText);
       throw new Error(response.statusText);
     }
-    logger.info(response.statusText);
+    logger.http(response);
   } catch (error) {
     logger.error("guildDelete error: ", error);
   }
