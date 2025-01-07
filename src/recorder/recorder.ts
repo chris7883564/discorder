@@ -184,7 +184,8 @@ export class Recorder extends EventEmitter {
       // process channel state
       //
       logger.info(
-        `voiceStateUpdate event: old.channelId=${old.channelId}, cur.channelId=${cur.channelId}, this.chan.id=${this.chan.id}`,
+        `voiceStateUpdate event: old.channelId=${old.channelId}, cur.channelId=${cur.channelId}, this.chan.id=${this.chan.id}` +
+          `old.member.id=${old.member?.id} this.user.id=${this.user.id}`,
       );
       // if (old.channelId === null && this.chan.id) {
       //   logger.info("new channelId detected: could auto start");
