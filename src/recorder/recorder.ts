@@ -13,11 +13,10 @@ import prism from "prism-media";
 import wav from "wav";
 import { RECORDING_DIR } from "../config";
 import { stopMuseSession } from "@/commands/stop";
-import { NonRealTimeVAD, NonRealTimeVADOptions } from "@ricky0123/vad-node";
 import { uploadFileToConvex } from "../recorder/convexuploader";
 
 import Logger from "@/logger";
-import { ms_to_time } from "@/utils";
+import { captureVoiceState, ms_to_time } from "@/utils";
 import { VADProcessor } from "./vad";
 const logger = new Logger("recorder");
 logger.enable();
@@ -27,7 +26,6 @@ if (!process.env.USE_VAD) {
   throw new Error("USE_VAD is not set");
 }
 const USE_VAD = process.env.USE_VAD;
-const vad_options: Partial<NonRealTimeVADOptions> = {};
 
 logger.info("USE_VAD", USE_VAD);
 
@@ -51,19 +49,8 @@ export class Recorder extends EventEmitter {
   protected dir: string;
   protected interval: NodeJS.Timeout | null = null;
   protected active_talkers = new Set<string>();
-  private myvad: NonRealTimeVAD | undefined;
   private vadProcessor: VADProcessor;
-
-  // Method to initialize VAD
-  async initializeVAD(vad_options: Partial<NonRealTimeVADOptions>) {
-    try {
-      // VAD setup
-      this.myvad = await NonRealTimeVAD.new(vad_options);
-      console.log("VAD initialized successfully");
-    } catch (error) {
-      console.error("Error initializing VAD:", error);
-    }
-  }
+  protected stopped = false;
 
   constructor(
     session_id: string,
@@ -79,8 +66,7 @@ export class Recorder extends EventEmitter {
     this.user = user;
     this.guild = chan.guild;
 
-    this.vadProcessor = new VADProcessor(USE_VAD === "true", vad_options);
-    this.initializeVAD(vad_options);
+    this.vadProcessor = new VADProcessor(USE_VAD === "true");
 
     this.start = Date.now();
 
@@ -196,9 +182,8 @@ export class Recorder extends EventEmitter {
       }
     });
 
-    //----- event handler for when recording is done
+    //----- EVENT: sent from the filewriter when the file is done being written to disk
     //
-
     this.on(
       "recorded",
       async (wav_filename, user_id, time_offset, session_id) => {
@@ -236,123 +221,36 @@ export class Recorder extends EventEmitter {
       },
     );
 
-    this.on(
-      "recorded_org",
-      async (
-        wav_filename: string,
-        user_id: string,
-        time_offset: number,
-        session_id: string,
-      ) => {
-        // arrives with the file already written to disk
+    //--- event handler for change in connections ---------------------------------------------------------------------
+    this.chan.client.on(
+      "voiceStateUpdate",
+      (old: VoiceState, cur: VoiceState) => {
+        logger.info(`voiceStateUpdate: from:`, captureVoiceState(old));
+        logger.info(`voiceStateUpdate: to:`, captureVoiceState(cur));
 
-        const username =
-          this.chan.guild.members.cache.get(user_id)?.displayName ?? user_id;
-        const name =
-          this.chan.guild.members.cache.get(user_id)?.user.username ?? user_id;
-        logger.info(username, name);
+        // if (old.channelId === null && this.chan.id) {
+        //   logger.info("new channelId detected: could auto start");
+        //   return;
+        // }
 
+        // if (old.channelId !== this.chan.id) {
+        //   logger.warn("voiceStateUpdate event: channelId changed ");
+        //   return;
+        // }
+        // if (cur.channelId === null) {
+        //   logger.error("voiceStateUpdate event: null channelId detected");
+        //   // this.stop();
+        // }
+
+        // process member state
         //
-        // VAD
-        //
-        let bFoundVoice = !USE_VAD; // default to true if there's no VAD in use
-        if (USE_VAD && this.myvad) {
-          const fb = await fs.readFileSync(wav_filename);
-          // Convert Buffer to Float32Array
-          const float32Array = new Float32Array(
-            fb.buffer,
-            fb.byteOffset,
-            fb.byteLength / Float32Array.BYTES_PER_ELEMENT,
-          );
-          for await (const { audio, start, end } of this.myvad.run(
-            float32Array,
-            16000,
-          )) {
-            logger.info("VAD chunk: ", ms_to_time(time_offset), start, end);
-            bFoundVoice = true;
-            // TODO: here we assume any voice in the first detected chunk means the whole thing is voice
-            // we could remove non-voice VAD chunks in future
-            // do stuff with
-            //   audio (float32array of audio)
-            //   start (milliseconds into audio where speech starts)
-            //   end (milliseconds into audio where speech ends)
-            break;
-          }
-        }
-
-        // delete the file if no speech detected
-        if (!bFoundVoice) {
-          logger.info(
-            ms_to_time(time_offset) + " " + "no speech detected in burst",
-          );
-          logger.info("Deleting " + wav_filename);
-          fs.unlink(
-            wav_filename,
-            (err) =>
-              err && logger.error(`Failed to delete ${wav_filename}`, err),
-          );
-          return;
-        }
-
-        // at this point, we have a valid voice burst
-        // we can now upload to convex and transcribe
-
-        // 1. upload to convex
-        uploadFileToConvex(
-          wav_filename,
-          username,
-          session_id,
-          user_id,
-          time_offset,
-          this.chan.guild.id,
-          this.chan.id,
-        )
-          .then(() => {
-            // upload success
-          })
-          .catch((e) => {
-            logger.error("Failed to upload " + wav_filename, e);
-          });
-
-        // "transcribe and send back to live channel"
-        let text = `filename: ${wav_filename} username: ${username} offset: ${ms_to_time(time_offset)}`;
-        const fp = wav_filename.replace(/\.wav$/, ".txt");
-        fs.writeFileSync(fp, text);
-        // update live channel
-        // const username = channel.guild.members.cache.get(user_id)?.displayName ?? user_id;
-        // await live_chan.send({ content: `**${username}**: ${text}`, });
-        logger.info(text);
+        // does this event relate to this userId
+        // if (old.member?.id !== this.user.id) {
+        //   logger.warn("voiceStateUpdate event: memberId changed");
+        //   return;
+        // }
       },
     );
-
-    //--- event handler for change in connections ---------------------------------------------------------------------
-    const client = this.chan.client;
-    client.on("voiceStateUpdate", (old: VoiceState, cur: VoiceState) => {
-      logger.info(`voiceStateUpdate: from: ${old} `);
-      logger.info(`voiceStateUpdate: to: ${cur} `);
-
-      // if (old.channelId === null && this.chan.id) {
-      //   logger.info("new channelId detected: could auto start");
-      //   return;
-      // }
-
-      // if (old.channelId !== this.chan.id) {
-      //   logger.warn("voiceStateUpdate event: channelId changed ");
-      //   return;
-      // }
-      // if (cur.channelId === null) {
-      //   logger.error("voiceStateUpdate event: null channelId detected");
-      //   // this.stop();
-      // }
-
-      // process member state
-      //
-      // does this event relate to this userId
-      // if (old.member?.id !== this.user.id) {
-      //   logger.warn("voiceStateUpdate event: memberId changed");
-      //   return;
-      // }
-    });
 
     //--- check once per second for connection destroyed status ---------------------------------------------------------------------
 
@@ -383,8 +281,6 @@ export class Recorder extends EventEmitter {
       // }
     }, 1000);
   }
-
-  protected stopped = false;
 
   //--------------------------------------------------------------------------------------------------------------------------------
   public stop() {

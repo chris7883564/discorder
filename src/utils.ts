@@ -2,26 +2,19 @@ import fs from "fs";
 import path from "path";
 import Logger from "./logger"; // Adjust the import path as necessary
 
-const logger = new Logger("directory-logger");
+const logger = new Logger("utils");
 
-/**
- * Converts milliseconds to a human-readable string format.
- * @param milliseconds - The number of milliseconds to convert.
- * @returns A string representing the time in a human-readable format.
- */
-// export function millisecondsToHumanReadable(milliseconds: number): string {
-//   const seconds = Math.floor((milliseconds / 1000) % 60);
-//   const minutes = Math.floor((milliseconds / (1000 * 60)) % 60);
-//   const hours = Math.floor((milliseconds / (1000 * 60 * 60)) % 24);
-//   const days = Math.floor(milliseconds / (1000 * 60 * 60 * 24));
+import { VoiceState } from "discord.js";
 
-//   const daysStr = days > 0 ? `${days}d ` : "";
-//   const hoursStr = hours > 0 ? `${hours}h ` : "";
-//   const minutesStr = minutes > 0 ? `${minutes}m ` : "";
-//   const secondsStr = seconds > 0 ? `${seconds}s` : "";
-
-//   return `${daysStr}${hoursStr}${minutesStr}${secondsStr}`.trim();
-// }
+// A simple string representation to capture the essential details of a Discord VoiceState can look like this:
+export function captureVoiceState(voiceState: VoiceState): string {
+  const userId = voiceState.id;
+  const username = voiceState.member?.user.username ?? "Unknown User";
+  const channelId = voiceState.channelId ?? "Not Connected";
+  const isDeafened = voiceState.selfDeaf ? "Yes" : "No";
+  const isMuted = voiceState.selfMute ? "Yes" : "No";
+  return `User: ${username} (ID: ${userId}), Channel: ${channelId}, Deafened: ${isDeafened}, Muted: ${isMuted}`;
+}
 
 /**
  * Converts milliseconds to a time string in the format HH:MM:SS:xxxx.

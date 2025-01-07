@@ -15,12 +15,13 @@ export interface VADResult {
 export class VADProcessor {
   private vad: NonRealTimeVAD | null = null;
   private useVAD: boolean;
+  private vad_options: Partial<NonRealTimeVADOptions> = {};
 
-  constructor(useVAD: boolean, options: Partial<NonRealTimeVADOptions> = {}) {
+  constructor(useVAD: boolean) {
     this.useVAD = useVAD;
 
     if (this.useVAD) {
-      this.initializeVAD(options);
+      this.initializeVAD(this.vad_options);
     }
   }
 

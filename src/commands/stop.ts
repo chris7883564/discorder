@@ -33,11 +33,13 @@ export const stopMuseSession = async (
   );
 
   const payload = JSON.stringify({ session_id: recorder?.session_id });
-  const response = await fetch(CONVEX_SITE_URL + "/discord/stop", {
+  const url = CONVEX_SITE_URL + "/discord/stop";
+  const response = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: payload,
   });
+  logger.info("POST", response.url);
   logger.http(response);
   if (!response.ok) {
     const msg = `Sorry, something went wrong when I tried to disconnect.  Make sure everyone leaves the room, and I will disconnect automatically. ${response.status} ${response.statusText}`;
@@ -79,24 +81,22 @@ const command: Command = {
     if (removed) {
       await interaction.reply("OK, I've stopped listening to the game.");
 
+      // show directory of files
       logDirectoryStructure(RECORDING_DIR);
-      const data = removed.gather();
 
+      // show what's in the text files
+      const data = removed.gather();
       const transcription = data
         .map(([t, u, c]) => `[${ms_to_time(t)}] ${u}: ${c}`)
         .join("\n");
+      logger.info(transcription);
 
-      logger.info("gathered: " + data.length + " items");
-      logger.info(data);
-
-      const transcriptionStream = Readable.from(transcription);
-
-      await interaction.followUp({
-        content: "Here's the transcription:",
-        files: [
-          { name: "transcription.txt", attachment: transcriptionStream }, // was Buffer.from(transcription)
-        ],
-      });
+      // send it back to the discord
+      // const transcriptionStream = Readable.from(transcription)
+      // await interaction.followUp({
+      //   content: "Here's the transcription:",
+      //   files: [ { name: "transcription.txt", attachment: transcriptionStream }, // was Buffer.from(transcription) ],
+      // })
     } else {
       await interaction.reply(
         "Looks like I'm not listening to this game, so there's nothing to do here.",

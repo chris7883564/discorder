@@ -43,7 +43,7 @@ export async function uploadFileToConvex(
     uploadURL.searchParams.set("talker_id", talker_id);
     uploadURL.searchParams.set("channel_id", channel_id);
     uploadURL.searchParams.set("time_offset", String(time_offset));
-    logger.info("POST ", uploadURL.href);
+    logger.info("POST", uploadURL.href);
 
     const result = await fetch(uploadURL, {
       method: "POST",
