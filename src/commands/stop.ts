@@ -68,6 +68,9 @@ const command: Command = {
       return;
     }
 
+    // give ourselves more time to process
+    interaction.deferReply({ ephemeral: true });
+
     // ----- stop muse session in the convex database
     const errormsg = await stopMuseSession(interaction.member.id);
     if (errormsg) {
@@ -78,14 +81,15 @@ const command: Command = {
     // ----- stop interaction
     const removed = remove(interaction.member);
     if (removed) {
-      await interaction.reply("OK, I've stopped listening to the game.");
+      // await interaction.reply("OK, I've stopped listening to the game.");
 
       logDirectoryStructure(RECORDING_DIR);
       const data = removed.gather();
       const transcription = data
         .map(([t, u, c]) => `[${ms_to_time(t)}] ${u}: ${c}`)
         .join("\n");
-      await interaction.followUp({
+      await interaction.reply({
+        content: "OK, I've stopped listening to the game.",
         files: [
           { name: "transcription.txt", attachment: Buffer.from(transcription) },
         ],
