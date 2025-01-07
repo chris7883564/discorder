@@ -28,8 +28,6 @@ const command: Command = {
   name: "start",
   description: "Ask Muse to start listening to the current voice channel",
   action: async (interaction) => {
-    logger.info("command received: start");
-
     if (
       !interaction.isCommand() ||
       !interaction.isChatInputCommand() ||

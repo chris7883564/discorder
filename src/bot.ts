@@ -84,7 +84,6 @@ client.on("interactionCreate", (interaction) => {
     if (!command) {
       return;
     }
-    logger.info("Executing command: " + command.name);
     command.action(interaction);
   } catch (error) {
     logger.error("interactionCreate error: ", error);

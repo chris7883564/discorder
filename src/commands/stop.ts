@@ -55,8 +55,6 @@ const command: Command = {
   name: "stop",
   description: "Tell Muse to stop listening to the session",
   action: async (interaction) => {
-    logger.info("command received: stop");
-
     if (
       !interaction.isCommand() ||
       !interaction.isChatInputCommand() ||
