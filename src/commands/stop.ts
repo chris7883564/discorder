@@ -9,6 +9,7 @@ import { RECORDING_DIR } from "../config";
 
 import { logDirectoryStructure, ms_to_time } from "@/utils";
 import { log } from "node:console";
+import { Readable } from "node:stream";
 const logger = new Logger("commands");
 logger.enable();
 
@@ -91,10 +92,12 @@ const command: Command = {
       logger.info("gathered: " + data.length + " items");
       logger.info(data);
 
+      const transcriptionStream = Readable.from(transcription);
+
       await interaction.followUp({
         content: "Here's the transcription:",
         files: [
-          { name: "transcription.txt", attachment: Buffer.from(transcription) },
+          { name: "transcription.txt", attachment: transcriptionStream }, // was Buffer.from(transcription)
         ],
       });
     } else {
