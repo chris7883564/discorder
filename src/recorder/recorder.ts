@@ -112,7 +112,7 @@ export class Recorder extends EventEmitter {
         duration: AFTER_SILENCE_MSECS,
       };
       const configuration2 = { behavior: EndBehaviorType.Manual as const };
-      const audio = this.conn.receiver.subscribe(user, { end: configuration2 });
+      const audio = this.conn.receiver.subscribe(user, { end: configuration1 });
 
       // build filename for this recording talkburst
       const time_offset = Date.now() - this.start; // from start of this recording command session
@@ -247,7 +247,6 @@ export class Recorder extends EventEmitter {
     if (this.stopped) {
       return;
     }
-    logger.info("stopping muse session...", this.session_id);
     stopMuseSession(this.session_id);
 
     this.conn.destroy();
@@ -256,7 +255,6 @@ export class Recorder extends EventEmitter {
     }
 
     // ----- stop muse session in the convex database
-    logger.info("stopped.");
     this.stopped = true;
   }
 

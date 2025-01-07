@@ -8,6 +8,7 @@ import { CONVEX_SITE_URL } from "@/config";
 import { RECORDING_DIR } from "../config";
 
 import { logDirectoryStructure, ms_to_time } from "@/utils";
+import { log } from "node:console";
 const logger = new Logger("commands");
 logger.enable();
 
@@ -78,15 +79,20 @@ const command: Command = {
     // ----- stop interaction
     const removed = remove(interaction.member);
     if (removed) {
-      // await interaction.reply("OK, I've stopped listening to the game.");
+      await interaction.reply("OK, I've stopped listening to the game.");
 
       logDirectoryStructure(RECORDING_DIR);
       const data = removed.gather();
+
       const transcription = data
         .map(([t, u, c]) => `[${ms_to_time(t)}] ${u}: ${c}`)
         .join("\n");
-      await interaction.reply({
-        content: "OK, I've stopped listening to the game.",
+
+      logger.info("gathered: " + data.length + " items");
+      logger.info(data);
+
+      await interaction.followUp({
+        content: "Here's the transcription:",
         files: [
           { name: "transcription.txt", attachment: Buffer.from(transcription) },
         ],
