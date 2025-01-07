@@ -16,6 +16,7 @@ import fs from "node:fs";
 
 import Logger from "@/logger";
 import { CONVEX_SITE_URL } from "@/config";
+import { log } from "node:console";
 const logger = new Logger("convexuploader");
 
 logger.enable();
@@ -49,11 +50,7 @@ export async function uploadFileToConvex(
       headers: { "Content-Type": "audio/wav" },
       body: new Uint8Array(file.buffer), // was file.buffer
     });
-    logger.info(
-      result.status,
-      result.statusText,
-      `wrote ${file.buffer.byteLength} bytes`,
-    );
+    logger.http(result, `writing ${file.buffer.byteLength} bytes`);
   } catch (e) {
     logger.error("error: ", e);
   }

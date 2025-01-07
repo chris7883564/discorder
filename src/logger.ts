@@ -51,6 +51,23 @@ class Logger {
     }
   }
 
+  http(result: Response, ...messages: any[]) {
+    const status = result.status;
+    const statusText = result.statusText;
+
+    if (status >= 200 && status < 300) {
+      this.info(`${status} ${statusText}`, ...messages);
+    } else if (status >= 300 && status < 400) {
+      this.warn(`${status} redirection ${statusText}`, ...messages);
+    } else if (status >= 400 && status < 500) {
+      this.warn(`${status} client error ${statusText}`, ...messages);
+    } else if (status >= 500) {
+      this.error(`${status} server error ${statusText}`, ...messages);
+    } else {
+      this.info(`${status} ${statusText} `, ...messages);
+    }
+  }
+
   info(...messages: any[]) {
     this.log("info", ...messages);
   }
