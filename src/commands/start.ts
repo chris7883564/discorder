@@ -16,7 +16,10 @@ const logger = new Logger("commands");
 logger.enable();
 
 // VAD CONTROL
-const USE_VAD = process.env.USE_VAD ? true : false;
+if (!process.env.USE_VAD) {
+  throw new Error("USE_VAD is not set");
+}
+const USE_VAD = process.env.USE_VAD;
 logger.info("USE_VAD", USE_VAD);
 
 //---------------------------------------------------------------------
