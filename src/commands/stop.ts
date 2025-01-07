@@ -68,9 +68,6 @@ const command: Command = {
       return;
     }
 
-    // give ourselves more time to process
-    interaction.deferReply({ ephemeral: true });
-
     // ----- stop muse session in the convex database
     const errormsg = await stopMuseSession(interaction.member.id);
     if (errormsg) {
